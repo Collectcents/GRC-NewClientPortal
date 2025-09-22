@@ -1,5 +1,9 @@
 var builder = WebApplication.CreateBuilder(args);
 
+// Example if you’re using EF Core
+builder.Services.AddDbContext<MyDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultDataSource")));
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
