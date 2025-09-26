@@ -1,7 +1,15 @@
-﻿namespace GRC_NewClientPortal.Models.Domain
+﻿using Microsoft.Extensions.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace GRC_NewClientPortal.Models.Domain
 {
     public class DLWTaxPayerRegn
     {
+        private readonly string _connectionString;
+        private readonly IConfiguration _configuration;
+
+
         #region properties
         /// <summary>
         /// The private member referenced by the
@@ -798,11 +806,134 @@
 
         #endregion
 
-        public DLWTaxPayerRegn()
+        public DLWTaxPayerRegn(IConfiguration _configuration)
         {
-            //
-            // TODO: Add constructor logic here
-            //
+            _connectionString = _configuration.GetConnectionString("DefaultDataSource");
+        }
+
+        public bool SaveRegistration()
+        {
+
+            //2009-09-02 - Double check to make sure all requiried fields are available.
+            if (CheckRequiredFields() == false)
+            {
+                throw new Exception("All Required Fields not available in Registration object. Cannot proceed with Save.");
+            }
+
+            return SaveRegistrationInDatabase();
+        }
+
+        public bool SaveRegistrationInDatabase()
+        {
+            try
+            {
+                SqlCommand _sqlCmd = new SqlCommand();
+                SqlConnection _sqlCon = new SqlConnection();
+
+                _sqlCmd.CommandText = "p_DLW_add_registration";
+                _sqlCmd.CommandType = CommandType.StoredProcedure;
+
+                _sqlCmd.Parameters.AddWithValue("@tpid", tpid);
+                _sqlCmd.Parameters.AddWithValue("@rev_code", rev_code);
+                _sqlCmd.Parameters.AddWithValue("@tax_per_dte", tax_per_dte);
+                _sqlCmd.Parameters.AddWithValue("@tax_type", tax_type);
+                _sqlCmd.Parameters.AddWithValue("@tax_year", tax_year);
+                _sqlCmd.Parameters.AddWithValue("@tpid_pri", tpid_pri);
+                _sqlCmd.Parameters.AddWithValue("@tpid_sec", tpid_sec);
+                _sqlCmd.Parameters.AddWithValue("@pri_sec", pri_sec);
+                _sqlCmd.Parameters.AddWithValue("@tap_filing_status", tap_filing_status);
+
+                _sqlCmd.Parameters.AddWithValue("@last_name", last_name?.Replace(",", " "));
+                _sqlCmd.Parameters.AddWithValue("@first_name", first_name?.Replace(",", " "));
+                _sqlCmd.Parameters.AddWithValue("@bus_name", bus_name?.Replace(",", " "));
+                _sqlCmd.Parameters.AddWithValue("@addr_line_1", addr_line_1?.Replace(",", " "));
+                _sqlCmd.Parameters.AddWithValue("@addr_line_2", addr_line_2?.Replace(",", " "));
+                _sqlCmd.Parameters.AddWithValue("@city", city?.Replace(",", " "));
+                _sqlCmd.Parameters.AddWithValue("@state", state?.Replace(",", " "));
+                _sqlCmd.Parameters.AddWithValue("@zipcode", zipcode);
+                _sqlCmd.Parameters.AddWithValue("@home_area_code", home_area_code);
+                _sqlCmd.Parameters.AddWithValue("@home_phone_num", home_phone_num);
+                _sqlCmd.Parameters.AddWithValue("@alt_area_code", alt_area_code);
+                _sqlCmd.Parameters.AddWithValue("@alt_phone_num", alt_phone_num);
+                _sqlCmd.Parameters.AddWithValue("@alt_phone_extn", alt_phone_extn);
+
+                _sqlCmd.Parameters.AddWithValue("@taxpayer_found_on_facs", taxpayer_found_on_facs);
+                _sqlCmd.Parameters.AddWithValue("@tax_liability_found_on_facs", tax_liability_found_on_facs);
+                _sqlCmd.Parameters.AddWithValue("@registration_flag", registration_flag);
+                _sqlCmd.Parameters.AddWithValue("@prot_claim_ind", prot_claim_ind);
+
+                // if prot_claim_amt is string → convert safely
+                decimal claimAmt = 0;
+                decimal.TryParse(prot_claim_amt?.ToString(), out claimAmt);
+                _sqlCmd.Parameters.AddWithValue("@prot_claim_amt", claimAmt);
+
+                _sqlCmd.Parameters.AddWithValue("@return_filing_status", return_filing_status);
+                _sqlCmd.Parameters.AddWithValue("@pay_plan_status", pay_plan_status);
+                _sqlCmd.Parameters.AddWithValue("@emp_id", emp_id);
+                _sqlCmd.Parameters.AddWithValue("@email", email);
+
+
+                _sqlCon.ConnectionString = _configuration.GetConnectionString("DefaultDataSource");
+                try
+                {
+                    _sqlCon.Open();
+                    _sqlCmd.Connection = _sqlCon;
+                    int intRows = _sqlCmd.ExecuteNonQuery();
+                    return true;
+                }
+                catch (Exception _ex)
+                {
+                    throw _ex;
+                }
+                finally
+                {
+                    _sqlCon.Close();
+                }
+            }
+            catch (Exception _ex)
+            {
+                throw (new Exception("Exception in - DLWTaxPayerRegn : SaveRegistrationInDatabase", _ex.InnerException));
+            }
+        }
+
+        /// <summary>
+        /// CheckRequiredFields
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckRequiredFields()
+        {
+            try
+            {
+                if (tpid == null || tpid == string.Empty) return false;
+                if (rev_code == null || rev_code == string.Empty) return false;
+                if (tax_per_dte == null || tax_per_dte == string.Empty) return false;
+                if (tax_type == null || tax_type == string.Empty) return false;
+                if (tax_year == null || tax_year == string.Empty) return false;
+                if (tpid_pri == null || tpid_pri == string.Empty) return false;
+                if (pri_sec == null || pri_sec == string.Empty) return false;
+                if (tap_filing_status == null || tap_filing_status == string.Empty) return false;
+                if (last_name == null || last_name == string.Empty) return false;
+                if (first_name == null || first_name == string.Empty) return false;
+                if (addr_line_1 == null || addr_line_1 == string.Empty) return false;
+                if (city == null || city == string.Empty) return false;
+                if (state == null || state == string.Empty) return false;
+                if (zipcode == null || zipcode == string.Empty) return false;
+                if (home_area_code == null || home_area_code == string.Empty) return false;
+                if (home_phone_num == null || home_phone_num == string.Empty) return false;
+                if (taxpayer_found_on_facs == null || taxpayer_found_on_facs == string.Empty) return false;
+                if (tax_liability_found_on_facs == null || tax_liability_found_on_facs == string.Empty) return false;
+                if (registration_flag == null || registration_flag == string.Empty) return false;
+                if (prot_claim_ind == null || prot_claim_ind == string.Empty) return false;
+                if (pay_plan_status == null || pay_plan_status == string.Empty) return false;
+
+                return true;
+
+            }
+            catch (Exception _ex)
+            {
+                throw new Exception("Exception in  : CheckRequiredFields ", _ex);
+            }
+
         }
     }
 }

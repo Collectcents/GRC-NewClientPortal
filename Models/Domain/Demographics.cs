@@ -1,7 +1,11 @@
-﻿namespace GRC_NewClientPortal.Models.Domain
+﻿using System.Data;
+using System.Data.SqlClient;
+
+namespace GRC_NewClientPortal.Models.Domain
 {
     public class Demographics
     {
+        private readonly string _connectionString;
         /// <summary>
 		/// Class variable to hold the Formatted social security number
 		/// </summary>
@@ -70,7 +74,7 @@
         /// <summary>
         /// Constructor for the demographics object.
         /// </summary>
-        public Demographics()
+        public Demographics(IConfiguration configuration)
         {
             _ssn_fmt = "";
             _last_name = "";
@@ -88,6 +92,7 @@
             _emp_state = "";
             _emp_zip = "";
             _emp_phone = "";
+            _connectionString = configuration.GetConnectionString("DefaultDataSource");
         }
 
         /// <summary>
@@ -216,6 +221,49 @@
         public string emp_phone
         {
             get { return _emp_phone; }
+        }
+        /// <summary>
+		/// Queries the database and populates the demographics object with the details for the borrower SSN supplied.
+		/// </summary>
+		/// <param name="ssn">Social Security Number of the borrower</param>
+		/// <param name="bedp">Base EDP number for the borrower</param>
+		/// <remarks>@@@20050517ssm Added the new parameter bedp to overcome the issue of 000000000 ssn</remarks>
+		public async Task GetUserDemographicsAsync(string ssn, string bedp)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (var cmd = new SqlCommand("dbo.p_bwr_info", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@ssn", ssn);
+                    cmd.Parameters.AddWithValue("@bedp", bedp);
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            _ssn_fmt = reader["bwr_ssn"].ToString();
+                            _last_name = reader["bwr_last_name"].ToString();
+                            _first_name = reader["bwr_first_name"].ToString();
+                            _full_name = _last_name + ", " + _first_name;
+                            _addr1 = reader["bwr_addr1"].ToString();
+                            _addr2 = reader["bwr_addr2"].ToString();
+                            _city = reader["bwr_city"].ToString();
+                            _state = reader["bwr_state"].ToString();
+                            _zip = reader["bwr_zip"].ToString();
+                            _home_phone = reader["bwr_home_phone"].ToString();
+                            _emp_name = reader["bwr_emp_name"].ToString();
+                            _emp_addr = reader["bwr_emp_addr"].ToString();
+                            _emp_city = reader["bwr_emp_city"].ToString();
+                            _emp_state = reader["bwr_emp_state"].ToString();
+                            _emp_zip = reader["bwr_emp_zip"].ToString();
+                            _emp_phone = reader["bwr_emp_phone"].ToString();
+                        }
+                    }
+                }
+            }
         }
     }
 }
