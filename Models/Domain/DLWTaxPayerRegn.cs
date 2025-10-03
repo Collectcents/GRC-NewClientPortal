@@ -805,6 +805,10 @@ namespace GRC_NewClientPortal.Models.Domain
         }
 
         #endregion
+        public DLWTaxPayerRegn()
+        {
+
+        }
 
         public DLWTaxPayerRegn(IConfiguration _configuration)
         {
