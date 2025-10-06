@@ -1,3 +1,5 @@
+using GRC_NewClientPortal.Models.Domain;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Example if you’re using EF Core
@@ -6,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+SystemAvailability.Initialize(builder.Configuration);
 
 var app = builder.Build();
 

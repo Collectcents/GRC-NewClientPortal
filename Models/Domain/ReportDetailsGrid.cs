@@ -1,9 +1,12 @@
 ﻿using System.Data;
+using System.Data.SqlClient;
 
 namespace GRC_NewClientPortal.Models.Domain
 {
     public class ReportDetailsGrid
     {
+        private readonly IConfiguration _config;
+
         #region variables
 
         DataTable _dtReportDetails;
@@ -69,7 +72,6 @@ namespace GRC_NewClientPortal.Models.Domain
         private int _fileNumber;
 
         #endregion
-
 
         #region properties
 
@@ -302,5 +304,264 @@ namespace GRC_NewClientPortal.Models.Domain
 
 
         #endregion
+
+        /// <summary>
+		/// Constructor
+		/// </summary>
+		public ReportDetailsGrid(IConfiguration config)
+        {
+            _config = config;
+            dtReportDetails = new DataTable();
+            dtReportDetails.Columns.Add(new DataColumn("pdfPath", System.Type.GetType("System.String")));
+            dtReportDetails.Columns.Add(new DataColumn("xlsPath", System.Type.GetType("System.String")));
+            dtReportDetails.Columns.Add(new DataColumn("reportType", System.Type.GetType("System.String")));
+            dtReportDetails.Columns.Add(new DataColumn("clientNumber", System.Type.GetType("System.String")));
+            dtReportDetails.Columns.Add(new DataColumn("debtType", System.Type.GetType("System.String")));
+            dtReportDetails.Columns.Add(new DataColumn("reportDate", System.Type.GetType("System.DateTime")));
+            dtReportDetails.Columns.Add(new DataColumn("runDate", System.Type.GetType("System.DateTime")));
+            dtReportDetails.Columns.Add(new DataColumn("numberPages", System.Type.GetType("System.Int32")));
+            dtReportDetails.Columns.Add(new DataColumn("fileName", System.Type.GetType("System.String")));
+            dtReportDetails.Columns.Add(new DataColumn("pdfFilepath", System.Type.GetType("System.String")));
+            dtReportDetails.Columns.Add(new DataColumn("xlsFilepath", System.Type.GetType("System.String")));
+            dtReportDetails.Columns.Add(new DataColumn("formatSpecifier", System.Type.GetType("System.Boolean")));
+            dtReportDetails.Columns.Add(new DataColumn("isFileSelected", System.Type.GetType("System.Boolean")));
+            dtReportDetails.Columns.Add(new DataColumn("fileSize", System.Type.GetType("System.String")));
+            dtReportDetails.Columns.Add(new DataColumn("fileNumber", System.Type.GetType("System.Int32")));
+
+        }
+
+        /// <summary>
+        /// Get reports from file system to populate the datagrid
+        /// </summary>
+        public DataTable GetReportDetails(string basePath, string reportName)
+        {
+            try
+            {
+                string[] firstLevel, secondLevel;
+                System.Collections.IEnumerator enLevel1, enLevel2;
+                string sqlGetFormat = "";
+                string connectionString = _config.GetConnectionString("DefaultDataSource");
+                SqlConnection sqlConn = new SqlConnection(connectionString);
+                sqlConn.Open();
+                string[] rowValues = new string[15];
+                string fileName = string.Empty;
+                string baseClient;
+                int iRecord = 0;
+
+                if (System.IO.Directory.Exists(basePath))
+                {
+                    // Get directories under D://Reports//BaseClient
+                    firstLevel = System.IO.Directory.GetDirectories(basePath);
+                    enLevel1 = firstLevel.GetEnumerator();
+
+                    while (enLevel1.MoveNext())
+                    {
+                        // Get directories under D://Reports//BaseClient//Client
+                        secondLevel = System.IO.Directory.GetDirectories(Convert.ToString(enLevel1.Current));
+                        enLevel2 = secondLevel.GetEnumerator();
+                        while (enLevel2.MoveNext())
+                        {
+                            //Report Directories under D://Reports//BaseClient//Client
+                            System.IO.DirectoryInfo directoryName = new System.IO.DirectoryInfo(Convert.ToString(enLevel2.Current));
+                            //Report Directories under D://Reports//BaseClient//
+                            System.IO.DirectoryInfo directoryParent = new System.IO.DirectoryInfo(Convert.ToString(enLevel1.Current));
+                            baseClient = directoryParent.Parent.ToString();
+                            //compare Current directory and Report Name
+                            if (directoryName.Name.ToString() == reportName)
+                            {
+                                FileInfo[] pdfFiles = directoryName.GetFiles("*.pdf");
+
+                                FileInfo[] filesLst = directoryName.GetFiles();
+
+                                string[] fileNamelst = new string[filesLst.Length];
+
+                                bool isExist = false;
+                                int iCount = 0;
+
+                                foreach (FileInfo rptInfo in filesLst)
+                                {
+                                    //fileName = rptInfo.Name;
+
+                                    if (!(rptInfo.Attributes.ToString().Contains("Hidden")) || (rptInfo.Extension.ToUpper() == ".PDF" || rptInfo.Extension.ToUpper() == ".XLSX"))
+                                        fileName = rptInfo.Name.Remove(63, rptInfo.Extension.Length);
+
+                                    isExist = false;
+                                    int index = 0;
+                                    //For each of the pdf files
+                                    foreach (FileInfo filInfo in filesLst)
+                                    {
+                                        if (fileNamelst[index] == fileName)
+                                        {
+                                            isExist = true;
+                                        }
+                                        index++;
+                                    }
+
+                                    fileNamelst[iCount] = fileName;
+                                    iCount++;
+
+                                    if (isExist == false && (rptInfo.Extension.ToUpper() == ".PDF" || rptInfo.Extension.ToUpper() == ".XLSX" || rptInfo.Extension.ToUpper() == ".CSV"))
+                                    {
+
+                                        rowValues[0] = "";
+                                        rowValues[1] = "";
+                                        if (rptInfo.Extension.ToUpper() == ".PDF")
+                                        {
+                                            rowValues[0] = "type=" + reportName + "&cln=" + directoryParent.Name.ToString() + "&file=" + iRecord.ToString() + "&format=pdf";
+                                            //FileInfo[] xlsFiles = directoryName.GetFiles("*.xls");
+                                            var xlsFiles = Directory.EnumerateFiles(directoryName.FullName)
+                                                .Where(file => file.ToLower().EndsWith("xls") || file.ToLower().EndsWith("xlsx"))
+                                                .ToList();
+                                            foreach (string xlsInfo in xlsFiles)
+                                            {
+                                                if (fileName == xlsInfo.Substring(xlsInfo.LastIndexOf('\\') + 1, xlsInfo.LastIndexOf('.') - xlsInfo.LastIndexOf('\\') - 1))
+                                                {
+                                                    rowValues[1] = "type=" + reportName + "&cln=" + directoryParent.Name.ToString() + "&file=" + iRecord.ToString() + "&format=" + xlsInfo.Substring(xlsInfo.LastIndexOf('.') + 1, xlsInfo.Length - xlsInfo.LastIndexOf('.') - 1);
+                                                    break;
+                                                }
+
+                                            }
+                                        }
+                                        else
+
+                                        {
+                                            rowValues[1] = "type=" + reportName + "&cln=" + directoryParent.Name.ToString() + "&file=" + iRecord.ToString() + "&format=xls";
+                                            FileInfo[] xlsFiles = directoryName.GetFiles("*.pdf");
+                                            foreach (FileInfo xlsInfo in xlsFiles)
+                                            {
+                                                if (fileName == xlsInfo.Name.Remove(63, rptInfo.Extension.Length))
+                                                {
+                                                    rowValues[0] = "type=" + reportName + "&cln=" + directoryParent.Name.ToString() + "&file=" + iRecord.ToString() + "&format=pdf";
+                                                    break;
+                                                }
+
+                                            }
+                                        }
+
+
+                                        //Client Number
+                                        rowValues[3] = directoryParent.Name.ToString();
+                                        rowValues[4] = fileName.Substring(23, 10).Replace("_", "");
+                                        if (reportName == "FACS CLIENT STATEMENTS")
+                                        {
+                                            rowValues[2] = (fileName.Substring(16, 7).ToString());
+                                            if (rowValues[4].EndsWith("S"))
+                                                rowValues[2] += " (Totals Page)";
+                                            rowValues[4] = "";
+                                            SqlCommand cmd = new SqlCommand("SELECT Debt_Type FROM tbl_client_xref where CLIENT=@Client", sqlConn);
+                                            cmd.Parameters.Add("@Client", SqlDbType.VarChar);
+                                            cmd.Parameters["@Client"].Value = rowValues[3];
+                                            rowValues[4] = Convert.ToString(cmd.ExecuteScalar()); //Added role base menu access Request#4661391 (Existing Testing Issue)
+
+                                        }
+                                        else
+                                        {
+                                            rowValues[2] = reportName;
+                                        }
+                                        //Report Date
+                                        rowValues[5] = fileName.Substring(0, 2) + "/" + fileName.Substring(2, 2) + "/" + fileName.Substring(4, 4);
+                                        //Run Date
+                                        rowValues[6] = fileName.Substring(8, 2) + "/" + fileName.Substring(10, 2) + "/" + fileName.Substring(12, 4);
+                                        //Number of pages
+                                        rowValues[7] = fileName.Substring(58, 5);
+                                        //Report Path on file system
+                                        rowValues[8] = directoryName.ToString() + "\\" + fileName;
+                                        if (rowValues[0] != "")
+                                            rowValues[9] = "View";
+                                        else
+                                            rowValues[9] = "";
+                                        if (rowValues[1] != "")
+                                            rowValues[10] = "View";
+                                        else
+                                            rowValues[10] = "";
+                                        //fileSize
+                                        rowValues[13] = GetFileSize(rptInfo.Length);
+
+                                        //Format specifier is obtained from tbl_clnt_reports
+                                        //sqlGetFormat = "exec p_Get_ReportDelivered '" + rowValues[8]+"','"+reportName+"'";
+                                        sqlGetFormat = "exec p_Get_ReportDelivered '" + rowValues[8] + "','" + reportName + "','" + rowValues[3] + "','" + baseClient + "'";
+
+
+                                        try
+                                        {
+                                            //sqlConn.Open();
+                                            SqlDataAdapter daReportFormat = new SqlDataAdapter(sqlGetFormat, sqlConn);
+                                            DataSet dsReportFormat = new DataSet();
+                                            daReportFormat.Fill(dsReportFormat);
+                                            daReportFormat.Dispose();
+                                            //sqlConn.Close();
+                                            if (dsReportFormat.Tables[0].Rows.Count > 0)
+                                            {
+                                                //If there is no entry in SQL table apply bold formatting
+                                                if (dsReportFormat.Tables[0].Rows[0][0].ToString() == null)
+                                                    rowValues[11] = "False";
+                                                if (dsReportFormat.Tables[0].Rows[0][0].ToString() != "" || dsReportFormat.Tables[0].Rows[0][0].ToString() != null)
+                                                {
+                                                    rowValues[11] = dsReportFormat.Tables[0].Rows[0][0].ToString();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                rowValues[11] = "False";
+                                            }
+                                        }
+                                        catch (Exception)
+                                        {
+                                            ApplicationException ex = new ApplicationException("Could not get file format.");
+                                            throw ex;
+                                        }
+                                        //Is selected false for first time
+                                        rowValues[12] = "False";
+                                        //Number of the file
+                                        rowValues[14] = iRecord.ToString();
+                                        dtReportDetails.Rows.Add(rowValues);
+                                        iRecord++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                sqlConn.Close();
+            }
+            catch (Exception e)
+            {
+                ApplicationException ex = new ApplicationException("Could not get ReportGrid details." + e);
+                throw ex;
+            }
+            return dtReportDetails;
+        }
+        /// <summary>
+        /// To display the file size
+        /// </summary>
+        /// <param name="Bytes"></param>
+        /// <returns></returns>
+        private string GetFileSize(long Bytes)
+        {
+            if (Bytes >= 1073741824)
+            {
+                Decimal size = Decimal.Divide(Bytes, 1073741824);
+                return String.Format("{0:##.##} GB", size);
+            }
+            else if (Bytes >= 1048576)
+            {
+                Decimal size = Decimal.Divide(Bytes, 1048576);
+                return String.Format("{0:##.##} MB", size);
+            }
+            else if (Bytes >= 1024)
+            {
+                Decimal size = Decimal.Divide(Bytes, 1024);
+                return String.Format("{0:##.##} KB", size);
+            }
+            else if (Bytes > 0 & Bytes < 1024)
+            {
+                Decimal size = Bytes;
+                return String.Format("{0:##.##} Bytes", size);
+            }
+            else
+            {
+                return "0 Bytes";
+            }
+        }
     }
 }
