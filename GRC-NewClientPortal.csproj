@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\FACs\**" />
+    <Content Remove="Models\FACs\**" />
+    <EmbeddedResource Remove="Models\FACs\**" />
+    <None Remove="Models\FACs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="iTextSharp" Version="5.5.13.4" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.20" />
@@ -17,9 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\FACs\" />
     <Folder Include="Models\Web\" />
-    <Folder Include="Models\Security\" />
   </ItemGroup>
 
 </Project>

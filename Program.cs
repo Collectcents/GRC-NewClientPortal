@@ -1,17 +1,15 @@
 using GRC_NewClientPortal.Models.Domain;
+using GRC_NewClientPortal.Models.GRCEmail;
+//using GRC_NewClientPortal.Models.GRCEmail.ENTSendEmailManager;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Example if you’re using EF Core
 //builder.Services.AddDbContext<MyDbContext>(options =>
-    //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultDataSource")));
+//options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultDataSource")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-SystemAvailability.Initialize(builder.Configuration);
-
-var app = builder.Build();
-
 builder.Services.AddHttpContextAccessor();
 // Add services for session
 builder.Services.AddDistributedMemoryCache();
@@ -21,6 +19,12 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+//builder.Services.AddSingleton<ENTSsendEmailManager>();
+
+SystemAvailability.Initialize(builder.Configuration);
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -39,6 +43,6 @@ app.UseAuthorization();
 app.UseSession();
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Clienthome}/{action=Index}/{id?}");
 
 app.Run();
