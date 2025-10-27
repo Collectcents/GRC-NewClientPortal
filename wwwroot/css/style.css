@@ -1,0 +1,425 @@
+.lefttable {
+    width: 179px;
+}
+
+.clientlefttable {
+    width: 125px;
+    }
+
+/*.clientlefttable {
+    background-color: black;   
+    border: 1px solid #ccc;   
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    color: red;
+}*/
+    .clientcentertable {
+        width: 900px;
+        
+    }
+
+.centertable {
+    width: 930px;
+}
+
+body {
+    font-size: 11px;
+    color: #ffffff;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 17px;
+    margin-left: 20px;
+    margin-right: 0px;
+    margin-top: 20px;
+    margin-bottom: 0px;
+}
+
+p {
+    font-size: 11px;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 18px;
+}
+
+
+
+
+.tight {
+    font-size: 11px;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 14px;
+}
+
+.staffPosting {
+    font-size: 11px;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 14px;
+    padding-top: 12px;
+    padding-bottom: 18px;
+    padding-left: 11px;
+    padding-right: 25px;
+}
+
+
+.pastIssues {
+    font-size: 9px;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 15px;
+    text-decoration: underline;
+}
+
+
+.pullQuote {
+    font-size: 9px;
+    color: #575757;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 16px;
+}
+
+
+
+ul {
+    font-size: 11px;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 17px;
+}
+
+li {
+    font-size: 11px;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 17px;
+}
+
+
+a {
+    font-family: Verdana, Arial, Helvetica;
+    font-size: 11px;
+    font-weight: normal;
+    color: #007840;
+    line-Height: 17px;
+    text-decoration: none;
+}
+
+    a.blk {
+        font-family: Verdana, Arial, Helvetica;
+        font-size: 11px;
+        font-weight: normal;
+        color: #000000;
+        line-Height: 17px;
+        text-decoration: underline;
+    }
+
+    a.blksm {
+        font-family: Verdana, Arial, Helvetica;
+        font-size: 9px;
+        font-weight: normal;
+        color: #000000;
+        line-Height: 17px;
+        text-decoration: underline;
+    }
+
+.darkBlueHeading {
+    font-size: 11px;
+    color: #007840;
+    font-weight: bold;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 18px;
+}
+
+.lightBlueHeading {
+    font-size: 11px;
+    color: #A7CB9D;
+    font-weight: bold;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 18px;
+}
+
+
+
+.orangeHeading {
+    font-size: 11px;
+    color: #007840;
+    font-weight: bold;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 18px;
+}
+
+.smallBlue {
+    font-family: Verdana, Arial, Helvetica;
+    font-size: 9px;
+    font-weight: bold;
+    color: #A7CB9D;
+    text-decoration: none;
+    line-Height: 11px;
+}
+
+
+
+.subnavOff {
+    font-family: Verdana, Arial, Helvetica;
+    font-size: 11px;
+    font-weight: bold;
+    color: #54A16F;
+    text-decoration: none;
+    line-Height: 10px;
+}
+
+.subnavOn {
+    font-family: Verdana, Arial, Helvetica;
+    font-size: 11px;
+    font-weight: bold;
+    color: #54A16F;
+    text-decoration: none;
+    line-Height: 10px;
+}
+
+.subnav2Off {
+    font-family: Verdana, Arial, Helvetica;
+    font-size: 10px;
+    font-weight: bold;
+    color: #A7CB9D;
+    text-decoration: none;
+    line-Height: 11px;
+}
+
+.subnav2On {
+    font-family: Verdana, Arial, Helvetica;
+    font-size: 10px;
+    font-weight: bold;
+    color: #54A16F;
+    text-decoration: none;
+    line-Height: 11px;
+}
+
+
+
+
+
+td {
+    font-size: 11px;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+    Line-Height: 20px;
+}
+
+.ftr_copyright {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #737373;
+}
+
+.ftr_copyrightLink {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #737373;
+    text-decoration: underline;
+}
+
+
+.ftr_menu {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #007840;
+    text-decoration: none;
+}
+
+.srch_input1 {
+    border: 1px solid #C0C0C0;
+    height: 18;
+    width: 100;
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.srch_input2 {
+    border: 1px solid #C0C0C0;
+    height: 18;
+    width: 200;
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.srch_input3 {
+    border: 1px solid #C0C0C0;
+    height: 18;
+    width: 300;
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.srch_input05 {
+    border: 1px solid #C0C0C0;
+    height: 18;
+    width: 50;
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.srch_input04 {
+    border: 1px solid #C0C0C0;
+    width: 200;
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.width30 {
+    width: 30;
+}
+
+
+.boxlinks {
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+
+.logon_input {
+    border: 1px solid #007840;
+    height: 15;
+    width: 80;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif
+}
+
+
+
+.home_newslist {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #007840;
+    line-Height: 15px;
+    font-size: 12px;
+}
+
+.home_welcome {
+    font-family: Arial, Helvetica, sans-serif;
+    line-Height: 17px;
+    font-size: 12px;
+}
+
+
+
+.ftr_copyright {
+    font-family: Arial, Helvetica, sans-serif;
+    line-Height: 15px;
+    font-size: 11px;
+    color: #737373;
+}
+
+.ftr_menu {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #007840;
+    text-decoration: none;
+}
+
+.bulletImg {
+    margin-top: 4px;
+    margin-right: 8px;
+    margin-bottom: 5px;
+}
+
+.pageHead {
+    font-family: Verdana, Arial, Helvetica;
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-left: 22px;
+}
+
+.app_field {
+    border: 1px solid #A7CB9D;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+    font-size: 11px;
+}
+
+.app_title {
+    font-size: 11px;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+}
+
+.app_err {
+    font-size: 11px;
+    color: #CE0000;
+    font-family: Verdana, Arial, Helvetica
+}
+
+.app_instruction {
+    font-size: 11px;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica;
+    line-Height: 13px;
+}
+
+.nextb {
+    BORDER-RIGHT: #54A16F 1px solid;
+    BORDER-TOP: #54A16F 1px solid;
+    FONT-SIZE: 15px;
+    BORDER-LEFT: #54A16F 1px solid;
+    COLOR: #54A16F;
+    BORDER-BOTTOM: #54A16F 1px solid;
+    BACKGROUND-COLOR: #ffffff;
+    border: 1px solid #54A16F;
+}
+
+.txtarea {
+    FONT-SIZE: 10px;
+    font-family: Verdana;
+    BORDER-RIGHT: #54A16F 1px solid;
+    BORDER-TOP: #54A16F 1px solid;
+    BORDER-LEFT: #54A16F 1px solid;
+    BORDER-BOTTOM: #54A16F 1px solid;
+    border: 1px solid #54A16F;
+    BACKGROUND-COLOR: #ffffff;
+}
+
+.disableButton {
+    opacity: .50;
+    filter: alpha(opacity=50);
+    pointer-events: none;
+}
+
+.enableButton {
+    opacity: 1;
+    filter: alpha(opacity=100);
+}
+
+.dvmenu {
+    width: 100%;
+}
+
+    .dvmenu div {
+        display: inline-block;
+        word-spacing: 5px;
+    }
+
+.dvAccounts {
+    padding-right: 1px;
+}
+
+.dvAchs {
+}
+
+.dvPlacements {
+}
+
+.dvMyRefGuide {
+}
+
+.dvReports {
+}
+
+.dvValMedia {
+}
+
+.maintablewidth {
+    width: 800px;
+}

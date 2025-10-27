@@ -25,13 +25,9 @@ namespace GRC_NewClientPortal.Controllers
             _sendMailLogger = sendMailLogger;
         }
 
+       
         [HttpGet]
-        public IActionResult Index()
-        {
-            return View("clienthome"); ; // Looks for Views/ClientHome/Index.cshtml
-        }
-        [HttpGet]
-        public async Task<IActionResult> Index1()
+        public async Task<IActionResult> Index()
         {
             var session = _httpContextAccessor.HttpContext.Session;
 
@@ -53,7 +49,7 @@ namespace GRC_NewClientPortal.Controllers
             // === Initialize session defaults ===
             if (string.IsNullOrEmpty(session.GetString("signon")))
             {
-                string defaultEmail = _config["DefaultClientContact"] ?? "GRCInfo@generalrevenue.com";
+                string defaultEmail = _config["AppSettings:DefaultClientContact"] ?? "GRCInfo@generalrevenue.com";
                 session.SetString("CSR EMail", defaultEmail);
                 session.SetInt32("placementCount", 0);
                 session.SetInt32("placementFileCount", 0);
@@ -81,10 +77,10 @@ namespace GRC_NewClientPortal.Controllers
             }
 
             // === Session Timeout (handled globally in ASP.NET Core, left here for info) ===
-            int timeoutMinutes = Convert.ToInt32(_config["SessionTimeoutForClients"] ?? "30");
+            int timeoutMinutes = Convert.ToInt32(_config["AppSettings:SessionTimeoutForClients"]);
             // NOTE: session timeout is configured in Program.cs; cannot be set per-session.
 
-            return View(); // returns the corresponding Razor view (Views/ClientHome/Index.cshtml)
+            return View("clienthome");
         }
 
         /// <summary>

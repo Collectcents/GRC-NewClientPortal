@@ -1,5 +1,6 @@
 using GRC_NewClientPortal.Models.Domain;
 using GRC_NewClientPortal.Models.GRCEmail;
+using GRC_NewClientPortal.Models.Security;
 //using GRC_NewClientPortal.Models.GRCEmail.ENTSendEmailManager;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<Logon>();
 //builder.Services.AddSingleton<ENTSsendEmailManager>();
 
 SystemAvailability.Initialize(builder.Configuration);

@@ -1,4 +1,4 @@
-﻿
+﻿@model GRC_NewClientPortal.Models.Security.Logon
 @{
 	Layout = null; // ✅ ensures no master layout is used
 	ViewData["Title"] = "General Revenue Corporation :: Clients Access, Home";
@@ -11,7 +11,7 @@
 	<title>@ViewData["Title"]</title>
 
 	<!-- Styles -->
-	<link rel="stylesheet" href="~/css/style.css" />
+	<link rel="stylesheet" href="css/style.css" />
 
 	<style>
 		.newStyle1 {
@@ -87,7 +87,7 @@
 						<td valign="top" align="left" height="114">
 							<table>
 								<tr>
-									<td colspan="3" height="91"><a href="FW/menu.aspx"><img height="95" alt="Home" src="wwwroot\images\home\logo_home.gif" width="223" border="0"></a></td>
+									<td colspan="3" height="91"><a href="FW/menu.aspx"><img height="95" alt="Home" src="images/home/logo_home.gif" width="223" border="0"></a></td>
 								</tr>
 								<tr>
 									<td width="71"></td>
@@ -98,10 +98,7 @@
 										</a><a href="contact.aspx">
 											<img height="15" alt="Contact Us" src="images/global/nav/top_icons_r1_c2.gif" width="20"
 												 border="0">
-										</a><%--<a href="sitemap.htm">
-											<img height="15" alt="SiteMap" src="images/global/nav/top_icons_r1_c3.gif" width="17"
-												 border="0">
-										</a>--%><a href="search.htm">
+										</a><<a href="search.htm">
 											<img height="15" alt="Search" src="images/global/nav/top_icons_r1_c4.gif" width="17"
 												 border="0">
 										</a>
@@ -159,10 +156,9 @@
 												<td colspan="2">&nbsp;</td>
 											</tr>
 											<tr>
-												<%--
-												<td colspan="2">
+												@* <td colspan="2">
 													<div align="left"><a href="http://www.upromise.com/slm-grwebsite"><img src="images/clients/upromise.gif" width="81" height="34" border="0"></a></div>
-												</td>--%>
+												</td> *@
 												<td colspan="2">&nbsp;</td>
 											</tr>
 											<tr>
@@ -292,9 +288,9 @@
 															<td class="ftr_menu" colspan="2">
 																<a class="ftr_menu" href="FW/menu.aspx">Home</a> | <a class=ftr_menu href="contact.aspx">
 																	Contact Us
-																</a> <%--| <a class="ftr_menu" href="faq.htm">FAQs</a> | <a class="ftr_menu" href="employment.htm">
+																</a> @* | <a class="ftr_menu" href="faq.htm">FAQs</a> | <a class="ftr_menu" href="employment.htm">
 																	Employment
-																</a>&nbsp;--%>| <a class="ftr_menu" href="Terms%20and%20conditions.htm">
+																</a>&nbsp; *@| <a class="ftr_menu" href="Terms%20and%20conditions.htm">
 																	Terms &amp; Conditions
 																</a>
 															</td>
@@ -304,11 +300,11 @@
 																General Revenue Corporation <img border="0" src="images/Global/nav/ftr_dot.gif">
 																4660 Duke Drive, Suite 200
 																<img border="0" src="images/Global/nav/ftr_dot.gif"> Mason, OH 45040-8466<br>
-																© Copyright <%=DateTime.Now.Year%> All rights reserved.<br>
+																© Copyright @DateTime.Now.Year  All rights reserved.<br>
 																<a class="ftr_copyrightLink" href="privacy.htm">Privacy Notice</a>
 															</td>
-															<%--
-															<td valign="top" class="ftr_copyright"><a href="http://www.Navient.com/" target="_blank"><img src="images/global/Navient_73x38.gif" width="73" height="38" border="0"></a></td>--%>
+															@* 
+															<td valign="top" class="ftr_copyright"><a href="http://www.Navient.com/" target="_blank"><img src="images/global/Navient_73x38.gif" width="73" height="38" border="0"></a></td> *@
 														</tr>
 													</table>
 												</td>
