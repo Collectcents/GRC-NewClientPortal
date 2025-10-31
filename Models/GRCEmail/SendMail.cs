@@ -46,10 +46,11 @@ namespace GRC_NewClientPortal.Models.GRCEmail
 
             try
             {
-                var emm = new ENTSendEmailManager(_configuration, _logger)
-                {
-                    ContentType = ENTSendEmailManager.EmailContentType.PlainText
-                };
+                // pass logger as ILogger<ENTSendEmailManager>
+                using var emmLoggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+                var emmLogger = emmLoggerFactory.CreateLogger<ENTSendEmailManager>();
+
+                var emm = new ENTSendEmailManager(_configuration, emmLogger);
 
                 if (!string.IsNullOrWhiteSpace(attachments) && File.Exists(attachments))
                 {

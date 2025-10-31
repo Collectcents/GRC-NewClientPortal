@@ -33,8 +33,6 @@ namespace GRC_NewClientPortal.Models.GRCEmail
 
         private readonly IConfiguration _configuration;
         private readonly ILogger<ENTSendEmailManager> _logger;
-        private IConfiguration configuration;
-        private ILogger<SendMail> logger;
 
         // Constructor with dependency injection
         public ENTSendEmailManager(IConfiguration configuration, ILogger<ENTSendEmailManager> logger)
@@ -46,11 +44,11 @@ namespace GRC_NewClientPortal.Models.GRCEmail
             EmailRecipientsSeparator = _configuration["EmailRecepientsSeparator"] ?? ";";
         }
 
-        public ENTSendEmailManager(IConfiguration configuration, ILogger<SendMail> logger)
-        {
-            this.configuration = configuration;
-            this.logger = logger;
-        }
+        //public ENTSendEmailManager(IConfiguration configuration, ILogger<SendMail> logger)
+        //{
+        //    this.configuration = configuration;
+        //    this.logger = logger;
+        //}
 
         #region SettingsProperties
 
@@ -119,10 +117,10 @@ namespace GRC_NewClientPortal.Models.GRCEmail
                     email.Bcc.Add(bccList);
 
                 // SMTP configuration from appsettings
-                string smtpServer = _configuration["SmtpServer"];
-                int smtpPort = Convert.ToInt32(_configuration["SmtpServerPort"]);
-                string smtpUser = _configuration["SmtpUser"];
-                string smtpPassword = _configuration["SmtpPass"];
+                string smtpServer = _configuration["AppSettings:SmtpServer"];
+                int smtpPort = Convert.ToInt32(_configuration["AppSettings:SmtpServerPort"]);
+                string smtpUser = _configuration["AppSettings:SmtpUser"];
+                string smtpPassword = _configuration["AppSettings:SmtpPass"];
 
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 

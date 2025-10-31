@@ -1,4 +1,4 @@
-﻿@model GRC_NewClientPortal.Models.Security.Logon
+﻿@model GRC_NewClientPortal.Models.ClienthomeModel
 @{
 	Layout = null; // ✅ ensures no master layout is used
 	ViewData["Title"] = "General Revenue Corporation :: Clients Access, Home";
@@ -12,6 +12,8 @@
 
 	<!-- Styles -->
 	<link rel="stylesheet" href="css/style.css" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 
 	<style>
 		.newStyle1 {
@@ -28,6 +30,7 @@
 		}
 
 		function preloadImages() {
+			console.log("Image in ");
 			var d = document;
 			if (d.images) {
 				if (!d.MM_p) d.MM_p = [];
@@ -216,61 +219,44 @@
 														</font>
 													</P>
 													<p></p>
-													<form id="Form1" method="post" runat="server" autocomplete="off">
-														<p>
-															<asp:HiddenField ID="hdnBrowserVersionClt" runat="server" />
-															<table align="center" border="0">
-																<tr>
-																	<td align="center" colspan="2"><asp:label id="lblMessage" runat="server" ForeColor="Red"></asp:label></td>
-																</tr>
-																<asp:Panel runat="server" ID="pnlLogin">
-																	<tr>
-																		<td>Client Login:</td>
-																		<td><asp:textbox id="txtSignon" runat="server"></asp:textbox></td>
-																	</tr>
-																	<tr>
-																		<td>Your Last Name:</td>
-																		<td><asp:textbox id="txtLName" runat="server"></asp:textbox></td>
-																	</tr>
-																	<tr>
-																		<td>Password:</td>
-																		<td><asp:textbox id="txtPassword" runat="server" TextMode="Password" autocomplete="off"></asp:textbox></td>
-																	</tr>
-																	<tr>
-																		<td></td>
-																		<td>
-																			<asp:button id="btnSubmit" runat="server" Text="Submit" onclick="btnSubmit_Click"></asp:button><a href="ForgotPassword.aspx">
-																				Forgot Password?
-																			</a>
-																		</td>
-																	</tr>
-																</asp:Panel>
-																<asp:Panel runat="server" ID="pnlMFA" Visible="false">
-																	<tr>
-																		<td colspan="2" align="center">Two-step verification</td>
 
-																	</tr>
-																	<tr>
-																		<td colspan="2"><asp:Label runat="server" ID="lblVerify">To verify it's you, please enter the code you receive through email message.</asp:Label> </td>
+													<div class="login-container">
 
-																	</tr>
-																	<tr>
-																		<td>Verification Code:</td>
-																		<td><asp:textbox id="txtVerificationCode" runat="server" TextMode="Password" autocomplete="off"></asp:textbox></td>
-																	</tr>
-																	<tr>
-																		<td></td>
-																		<td>
-																			<asp:button id="btnVerify" runat="server" Text="Verify" OnClick="btnVerify_Click"></asp:button>
-																			<asp:button id="btnNewVerify" runat="server" Text="Request New Code" OnClick="btnNewVerify_Click"></asp:button>
-																		</td>
-																	</tr>
-																</asp:Panel>
+														<div id="loginDiv" style="@(Model.ShowMFA ? "display:none;" : "")">
+															<!-- Dedicated error div -->
+															<div id="clientError" class="alert alert-danger mt-3 text-center fw-bold" style="display:none;"></div>
 
-															</table>
+															<div>
+																<label>Client Login</label>
+																<input asp-for="Signon" class="form-control" />
+															</div>
+															<div>
+																<label>Last Name</label>
+																<input asp-for="LName" class="form-control" />
+															</div>
+															<div>
+																<label>Password</label>
+																<input asp-for="Password" type="password" class="form-control" />
+															</div>
 
-													</form>
-													<p></p>
+															<button type="submit" class="btn btn-primary" onclick="clienthome()">Login</button>
+														</div>
+
+														<div id="mfaDiv" style="@(Model.ShowMFA ? "" : "display:none;")">
+															<div>
+																<label>Two-Step Verification</label>
+																<p>@Model.Message</p>
+															</div>
+															<div>
+																<label>Enter MFA Code</label>
+																<input asp-for="MFACode" class="form-control" />
+															</div>
+
+															<button type="submit" class="btn btn-primary" onclick="VerifyMFA()">Verify</button>
+														</div>
+
+													</div>
+
 													<p></p>
 												</td>
 												<td width="1" bgcolor="#bdbdbd"><img height="1" hspace="0" src="images/global/spacer.gif" width="1" vspace="0" border="0"></td>
@@ -320,6 +306,8 @@
 			</td>
 		</tr>
 	</table>
+	<!-- Hidden field for browser version -->
+	<input type="hidden" id="hdnBrowserVersionClt" name="hdnBrowserVersionClt" />
 	<script language="javascript" type="text/javascript">
 		navigator.sayswho = (function() {
 			var ua = navigator.userAgent,
@@ -388,6 +376,71 @@
 		}
 	</script>
 
+	<script>
+		async function clienthome() {
+			console.log("clienthome() called");
+
+			const signonInput = document.getElementById('Signon');
+			const lnameInput = document.getElementById('LName');
+			const passwordInput = document.getElementById('Password');
+
+			if (!signonInput || !lnameInput || !passwordInput) {
+				console.error("One or more input fields not found!");
+				return;
+			}
+
+			const model = {
+				Signon: signonInput.value.trim(),
+				LName: lnameInput.value.trim(),
+				Password: passwordInput.value.trim(),
+				BrowserVersion: document.getElementById('hdnBrowserVersionClt').value
+			};
+
+			try {
+				console.log("Sending fetch request to /Clienthome/clienthome...");
+
+				const response = await fetch('/Clienthome/clienthome', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(model)
+				});
+
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+
+				const data = await response.json();
+				console.log("Response data:", data);
+
+				// Show error message
+				const errorDiv = document.getElementById('clientError');
+				if (errorDiv) {
+					if (data.errorMessage) {
+						errorDiv.innerHTML = data.errorMessage;
+						errorDiv.style.display = 'block';
+					} else {
+						errorDiv.innerHTML = '';
+						errorDiv.style.display = 'none';
+					}
+				}
+
+				// Toggle Login/MFA divs
+				document.getElementById('loginDiv').style.display = data.showMFA ? 'none' : '';
+				document.getElementById('mfaDiv').style.display = data.showMFA ? '' : 'none';
+
+				// Update MFA message
+				const mfaMessage = document.getElementById('mfaMessage');
+				if (mfaMessage && data.Message) {
+					mfaMessage.innerText = data.Message;
+				}
+
+			} catch (err) {
+				console.error("Fetch error:", err);
+				alert('An error occurred. Please check the console.');
+			}
+		}
+	</script>
+	
 	<!-- InstanceEnd -->
 </body>
 </html>
