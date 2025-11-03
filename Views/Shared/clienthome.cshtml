@@ -238,21 +238,25 @@
 																<label>Password</label>
 																<input asp-for="Password" type="password" class="form-control" />
 															</div>
-
-															<button type="submit" class="btn btn-primary" onclick="clienthome()">Login</button>
+															<!-- Button + Forgot Password -->
+															<div class="d-flex align-items-center mt-3">
+																<button type="submit" class="btn btn-primary me-3" onclick="clienthome()">Submit</button>
+																<a href="/ForgotPassword" class="text-decoration-none">Forgot Password?</a>
+															</div>
 														</div>
 
 														<div id="mfaDiv" style="@(Model.ShowMFA ? "" : "display:none;")">
 															<div>
 																<label>Two-Step Verification</label>
-																<p>@Model.Message</p>
+																<div id="mfaError" class="alert alert-danger mt-3 text-center fw-bold" style="display:none;"></div>
+																<p id="mfaMessage">@Model.Message</p>
+
 															</div>
 															<div>
 																<label>Enter MFA Code</label>
 																<input asp-for="MFACode" class="form-control" />
 															</div>
-
-															<button type="submit" class="btn btn-primary" onclick="VerifyMFA()">Verify</button>
+																<button type="submit" class="btn btn-primary" onclick="verifyMFA()">Verify</button>
 														</div>
 
 													</div>
@@ -439,7 +443,46 @@
 				alert('An error occurred. Please check the console.');
 			}
 		}
+
+
+		async function verifyMFA() {
+			console.log("verifyMFA() called");
+
+			const codeInput = document.getElementById('MFACode');
+			const code = codeInput.value.trim();
+
+			if (!code) {
+				alert("Please enter the MFA code.");
+				return;
+			}
+
+			try {
+				console.log("Sending MFA code to /Clienthome/VerifyMFA...");
+
+				const response = await fetch('/Clienthome/VerifyMFA', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ MFACode: code })
+				});
+
+						const contentType = response.headers.get("content-type");
+				if (contentType && contentType.includes("application/json")) {
+					// JSON response → show error
+					const data = await response.json();
+					const errorDiv = document.getElementById('mfaError');
+					errorDiv.innerHTML = data.errorMessage || "Invalid code.";
+					errorDiv.style.display = 'block';
+				} else {
+					// Redirect response → follow redirect
+					window.location.href = response.url;
+				}
+			} catch (err) {
+				console.error("Error during MFA verification:", err);
+				alert("An error occurred. Check console for details.");
+			}
+		}
 	</script>
+
 	
 	<!-- InstanceEnd -->
 </body>

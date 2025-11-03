@@ -73,7 +73,7 @@ namespace GRC_NewClientPortal.Controllers
             {
                 await GetClientInfo();
 
-                var facsUser = session.GetString("FACSUser") ?? "No";
+                var facsUser = session.GetString("FACSUser");
                 if (facsUser == "No")
                     return RedirectToAction("Menu", "Client");
                 else
@@ -83,7 +83,6 @@ namespace GRC_NewClientPortal.Controllers
             // === Session Timeout (handled globally in ASP.NET Core, left here for info) ===
             int timeoutMinutes = Convert.ToInt32(_config["AppSettings:SessionTimeoutForClients"]);
             // NOTE: session timeout is configured in Program.cs; cannot be set per-session.
-            //return View();
             return View("clienthome", model);
         }
 
@@ -93,50 +92,55 @@ namespace GRC_NewClientPortal.Controllers
         private async Task GetClientInfo()
         {
             var session = _httpContextAccessor.HttpContext.Session;
-            string? recId = session.GetString("RecID");
 
-            if (string.IsNullOrEmpty(recId))
-                return;
-
-            string? surveyLink = _config["Client_Survey_Link"];
-            string? surveyExp = _config["Client_Survey_Exp_Date"];
-
-            if (surveyLink == null || surveyExp == null)
-                return;
-
-            if (DateTime.Now >= Convert.ToDateTime(surveyExp))
-                return;
-
-            string connectionString = _config.GetConnectionString("DefaultDataSource")!;
-            using var conn = new SqlConnection(connectionString);
-
-            string sql = $"exec dbo.ssp_APG_GRCWeb_client_GetClientInfo {recId}";
-            using var adapter = new SqlDataAdapter(sql, conn);
-            var dsClientDetails = new DataSet();
-
-            await Task.Run(() => adapter.Fill(dsClientDetails)); // mimic async data fill
-
-            if (dsClientDetails.Tables.Count == 0 || dsClientDetails.Tables[0].Rows.Count == 0)
-                return;
-
-            var row = dsClientDetails.Tables[0].Rows[0];
-
-            string clientBaseNumber = row["ClientBaseNumber"].ToString() ?? string.Empty;
-            string clientName = row["ClientName"].ToString() ?? string.Empty;
-            string personName = row["PersonName"].ToString() ?? string.Empty;
-            string email = row["Email"].ToString() ?? string.Empty;
-            string clientcsr = row["CSR"].ToString() ?? string.Empty;
-            string clientsalesID = row["SalesID"].ToString() ?? string.Empty;
-            string facsDirectory = row["FACSDirectory"].ToString() ?? string.Empty;
-
-            // Only create survey link if FACS directory = POH
-            if (!string.IsNullOrEmpty(facsDirectory) && facsDirectory.Equals("POH", StringComparison.OrdinalIgnoreCase))
+            if (session.GetInt32("RecID") != null)
             {
-                string formattedSurveyLink = string.Format(
-                    surveyLink,
-                    clientBaseNumber, clientName, email, personName, clientcsr, clientsalesID
-                );
-                session.SetString("CLIENT_SURVEY_LINK", formattedSurveyLink);
+                if (_config["AppSettings:Client_Survey_Link"] != null && _config["AppSettings:Client_Survey_Exp_Date"] != null)
+                {
+                    if (DateTime.Now < Convert.ToDateTime(_config["AppSettings:Client_Survey_Exp_Date"]))
+                    {
+                        string surveyLink = _config["AppSettings:Client_Survey_Link"]!;
+                        string connectionString = _config.GetConnectionString("DefaultDataSource")!;
+                        int? recId = session.GetInt32("RecID");
+
+                        using SqlConnection conn = new SqlConnection(connectionString);
+                        SqlDataAdapter daClientDetails = new SqlDataAdapter(
+                            $"exec dbo.ssp_APG_GRCWeb_client_GetClientInfo {recId}", conn);
+
+                        DataSet dsClientDetails = new DataSet();
+                        await Task.Run(() => daClientDetails.Fill(dsClientDetails)); 
+
+                        string clientBaseNumber = string.Empty,
+                               clientName = string.Empty,
+                               personName = string.Empty,
+                               email = string.Empty,
+                               clientcsr = string.Empty,
+                               clientsalesID = string.Empty,
+                               facsDirectory = string.Empty;
+
+                        if (dsClientDetails.Tables[0].Rows.Count >= 1)
+                        {
+                            var row = dsClientDetails.Tables[0].Rows[0];
+                            clientBaseNumber = row["ClientBaseNumber"].ToString() ?? string.Empty;
+                            clientName = row["ClientName"].ToString() ?? string.Empty;
+                            personName = row["PersonName"].ToString() ?? string.Empty;
+                            email = row["Email"].ToString() ?? string.Empty;
+                            clientcsr = row["CSR"].ToString() ?? string.Empty;
+                            clientsalesID = row["SalesID"].ToString() ?? string.Empty;
+                            facsDirectory = row["FACSDirectory"].ToString() ?? string.Empty;
+                        }
+
+                        if (!string.IsNullOrEmpty(facsDirectory) && facsDirectory.ToUpper() == "POH")
+                        {
+                            string formattedSurveyLink = string.Format(
+                                surveyLink,
+                                clientBaseNumber, clientName, email, personName, clientcsr, clientsalesID
+                            );
+
+                            session.SetString("CLIENT_SURVEY_LINK", formattedSurveyLink);
+                        }
+                    }
+                }
             }
         }
 
@@ -149,18 +153,17 @@ namespace GRC_NewClientPortal.Controllers
             session.SetString("ForcePasswordChange", "No");
             session.SetString("FACSUser", "No");
 
-            if (string.IsNullOrWhiteSpace(model.Password) || string.IsNullOrWhiteSpace(model.LName))
+            if (string.IsNullOrWhiteSpace(model.Password) || string.IsNullOrWhiteSpace(model.LName) || string.IsNullOrWhiteSpace(model.Signon))
             {
-                model.ErrorMessage = "Last name and password are required.";
-                //ModelState.AddModelError(string.Empty, "Last name and password are required.");
+                model.ErrorMessage = "Client Login, Last name and password are required.";
                 model.ShowMFA = false;
-                return View("clienthome", model);
+                return Json(model);
             }
 
             string connStr = _config.GetConnectionString("DefaultDataSource");
             string hashedPassword = model.Password;
             bool boolLogit = false;
-            bool boolMemos = false;
+            string boolMemos; 
 
             string storedPassword = null;
             using (var sqlConn = new SqlConnection(connStr))
@@ -178,23 +181,19 @@ namespace GRC_NewClientPortal.Controllers
 
                 // Execute the query and to show in console the output form it.
                 var sqlresult = await dacheckPassword.ExecuteScalarAsync(); // returns first column of first row
-
                 if (sqlresult != null)
                 {
                     storedPassword = sqlresult.ToString();
-                    Console.WriteLine($"Password from DB: {storedPassword}"); // or use logging
+                    Console.WriteLine($"Password from DB: {storedPassword}"); 
                 }
                 else
                 {
                     Console.WriteLine("No matching record found.");
                 }
 
-
-
                 var da = new SqlDataAdapter(dacheckPassword);
                 var dscheckPassword = new DataSet();
                 da.Fill(dscheckPassword);
-
 
                 if (dscheckPassword.Tables[0].Rows.Count > 0)
                 {
@@ -206,11 +205,8 @@ namespace GRC_NewClientPortal.Controllers
                 }
                 else
                 {
-                    // return the error that the login doesnot exist try with correct login. and retunr to the screen to login again.
-
                     model.ErrorMessage = "Invalid Login or Last Name.";
                     Console.WriteLine("DB doesnot have the Login. Please enter the details again.");
-                    // return View("clienthome", model);
                     return Json(model);
                     
 
@@ -220,8 +216,7 @@ namespace GRC_NewClientPortal.Controllers
                 if (dscheckPassword.Tables[0].Rows[0]["Password"].ToString().Trim() == hashedPassword.Trim())
 
                 {
-                    //get further values from the stored procedure...
-                    var cmdLogin = new SqlDataAdapter($"exec p_cli_logon_request '{model.Signon}', '{hashedPassword}', '{model.LName.ToUpper()}'", sqlConn);
+                    var cmdLogin = new SqlDataAdapter($"exec p_cli_logon_request '{model.Signon.ToUpper()}', '{hashedPassword}', '{model.LName.ToUpper()}'", sqlConn);
                     var dsLogin = new DataSet();
                     cmdLogin.Fill(dsLogin);
 
@@ -230,13 +225,19 @@ namespace GRC_NewClientPortal.Controllers
                     string fname = row["C10FNM"].ToString().Trim();
                     string lname = row["C10LNM"].ToString().Trim();
                     session.SetString("contactName", $"{fname} {lname}");
-                    boolMemos = row["C10MEM"].ToString() == "Y";
-                    session.SetString("boolMemos", boolMemos.ToString());
+                    boolMemos = row["C10MEM"].ToString();
+                    if (boolMemos == "Y")
+                    {
+                        session.SetString("boolMemos","true");
+                    }
+                    else
+                    {
+                        session.SetString("boolMemos", "false");
+                    }
+                    
                     session.SetInt32("RecID", Convert.ToInt32(row["RecID"]));
                     session.SetString("FACSDirectory", row["FACSDirectory"].ToString());
                     session.SetString("DPEntrystatus", row["DPEntry"].ToString());
-                    session.SetString("contactEmail", row["Email"].ToString().Trim());
-                    session.SetString("signon", row["C10BC#"].ToString());
 
                     // Password expiration logic
                     DateTime dtPassChangeDate = Convert.ToDateTime(row["PasswordChangeDate"]);
@@ -252,7 +253,6 @@ namespace GRC_NewClientPortal.Controllers
                         model.ShowMFA = false;
                         // stop execution and show error on screen
                         return Json(model);
-                        //return View("clienthome", model);
                     }
                     else if (loginAttempts > 0)
                     {
@@ -260,7 +260,7 @@ namespace GRC_NewClientPortal.Controllers
                         model.ShowMFA = false;
                         // stop execution and show error on screen
                         return Json(model);
-                        //return View("clienthome", model);
+                      
                     }
                     else if (tempPassword == 1)
                     {
@@ -292,6 +292,8 @@ namespace GRC_NewClientPortal.Controllers
                     session.SetString("SessionVariablesSet", "No");
                     session.SetString("SessionDPVariablesSet", "No");
                     session.SetString("SessionACHVariablesSet", "No");
+                    session.SetString("signon", row["C10BC#"].ToString());
+                    session.SetString("contactEmail", row["Email"].ToString().Trim());
 
                     // Role Permissions
                     if (dsLogin.Tables.Count > 1)
@@ -331,7 +333,7 @@ namespace GRC_NewClientPortal.Controllers
                     int iach = 0;
                     using (var cmdACH = new SqlCommand(sqlACH, sqlConn))
                     {
-                        //await sqlConn.OpenAsync();
+                   
                         iach = Convert.ToInt32(await cmdACH.ExecuteScalarAsync());
                         await sqlConn.CloseAsync();
                     }
@@ -343,7 +345,7 @@ namespace GRC_NewClientPortal.Controllers
                     model.ErrorMessage = "Invalid Login, Last Name, and/or Password. <br>Please login again or contact your CSR for assistance.";
                     model.ShowMFA = false;
                     return Json(model);
-                    //return View("clienthome", model);
+                   
                 }
             }
                 Console.WriteLine($"ErrorMessage: {model.ErrorMessage}");
@@ -352,37 +354,32 @@ namespace GRC_NewClientPortal.Controllers
                 if (string.IsNullOrEmpty(model.ErrorMessage) || model.ErrorMessage == "You have logged in with a temporary password. Please update your password now.")
                 {
                     string verificationCode = await GenerateVerificationCodeAsync(session.GetString("contactEmail"));
-                    var contactEmail = session.GetString("ContactEmail");
+                    var contactEmail = session.GetString("contactEmail");
                     session.SetString("VerificationCode", verificationCode);
                     model.ShowMFA = true;
                     model.Message = "A verification code has been sent to your email. Please enter it below.";
                 }
-                // test this one......
+                
                 if (boolLogit)
                 {
                     await LogItAsync(session.GetString("VerificationCode"));
                     await GetClientInfo();
-                return Json(model);
-                //return View("clienthome", model);
+                    return Json(model);
+               
             }
 
                 else
                 {
-                    // Reset session values on failed login
                     session.SetString("signon", "");
-                    session.SetString("CSR EMail", _config["DefaultClientContact"] ?? "default@example.com");
+                    session.SetString("CSR EMail", _config["AppSettings:DefaultClientContact"]);
                     session.SetString("pword", "");
                     session.SetString("schoolname", "");
                     session.SetString("boolMemos", "false");
 
-                    // Set an error message and stop execution
+                    
                     model.ErrorMessage = "Invalid login. <br>Please login again or contact your CSR for assistance.";
                     model.ShowMFA = false;
-
-                // Option 1: Return the same view with error message
-                return Json(model);// add the condition for resting the varibales at as an else to this if
-
-                    // MFA screen redirect
+                return Json(model);
                 }
             }           
         
@@ -390,23 +387,35 @@ namespace GRC_NewClientPortal.Controllers
         {
             var httpContext = _httpContextAccessor.HttpContext;
             string loginIP = httpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-            string recId = httpContext.Session.GetInt32("RecID")?.ToString() ?? "0";
+            int? recId = httpContext.Session.GetInt32("RecID");
 
             string connStr = _config.GetConnectionString("DefaultDataSource");
             string sql = @"INSERT INTO tbl_client_logins (login, loginIP, loginDate, verificationCode)
                            VALUES (@login, @loginIP, @loginDate, @verificationCode)";
 
-            using (var conn = new SqlConnection(connStr))
-            using (var cmd = new SqlCommand(sql, conn))
+            try
             {
-                cmd.Parameters.AddWithValue("@login", recId);
-                cmd.Parameters.AddWithValue("@loginIP", loginIP);
-                cmd.Parameters.AddWithValue("@loginDate", DateTime.Now);
-                cmd.Parameters.AddWithValue("@verificationCode", verificationCode);
+                using (var conn = new SqlConnection(connStr))
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@login", recId);
+                    cmd.Parameters.AddWithValue("@loginIP", loginIP);
+                    cmd.Parameters.AddWithValue("@loginDate", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@verificationCode", verificationCode);
 
-                await conn.OpenAsync();
-                await cmd.ExecuteNonQueryAsync();
-                await conn.CloseAsync();
+                    await conn.OpenAsync();
+                    int rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+
+                    if (rows > 0)
+                        Console.WriteLine($"[LogItAsync] Inserted {rows} row(s) into tbl_client_logins for RecID={recId}, IP={loginIP}, Code={verificationCode}");
+                    else
+                        Console.WriteLine("[LogItAsync] No rows inserted (ExecuteNonQuery returned 0).");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LogItAsync] Exception: {ex.Message}");
             }
         }
 
@@ -447,17 +456,19 @@ namespace GRC_NewClientPortal.Controllers
         // Verify MFA code (replacement for btnVerify_Click)
         // ---------------------------------------------------------------------
         [HttpPost]
-        public async Task<IActionResult> VerifyMFA(ClienthomeModel model)
+        public async Task<IActionResult> VerifyMFA([FromBody] ClienthomeModel model)
         {
             var session = _httpContextAccessor.HttpContext.Session;
             string correctCode = session.GetString("VerificationCode");
 
-            //if (string.IsNullOrEmpty(correctCode))
-            //{
-            //    model.ShowMFA = true;
-            //    model.ErrorMessage = "Your session has expired. Please request a new verification code.";
-            //    return View("clienthome", model); // stay on same page
-            //}
+            if (string.IsNullOrEmpty(correctCode))
+            {
+                return Json(new
+                {
+                    success = false,
+                    errorMessage = "Your session has expired. Please request a new verification code."
+                });
+            }
 
             if (model.MFACode == correctCode)
             {
@@ -466,11 +477,11 @@ namespace GRC_NewClientPortal.Controllers
             }
             else
             {
-                // Code mismatch: show same page with error
-                model.ShowMFA = true;
-                model.ErrorMessage = "Verification code does not match. Please enter the correct code or request a new one.";
-                return RedirectToAction("Clienthome",model); // not a good approach becoz it will clear out the model and error message.
-                //return View("clienthome", model); // this takes to _viewStart.cshtml , and returns to https://localhost:7060/Clienthome/VerifyMFA and then return the broken layout.
+                return Json(new
+                {
+                    success = false,
+                    errorMessage = "Verification code does not match. Please enter the correct code or request a new one."
+            });                
 
             }
         }
@@ -533,8 +544,6 @@ namespace GRC_NewClientPortal.Controllers
             {
                 pageRedirect = "~/menu";
             }
-
-           // await GetClientInfo();
 
             return Redirect(pageRedirect);
         }
