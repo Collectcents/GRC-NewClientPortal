@@ -241,7 +241,7 @@
 															<!-- Button + Forgot Password -->
 															<div class="d-flex align-items-center mt-3">
 																<button type="submit" class="btn btn-primary me-3" onclick="clienthome()">Submit</button>
-																<a href="/ForgotPassword" class="text-decoration-none">Forgot Password?</a>
+																<a href="/forgotpassword" class="text-decoration-none">Forgot Password?</a>
 															</div>
 														</div>
 
@@ -249,7 +249,7 @@
 															<div>
 																<label>Two-Step Verification</label>
 																<div id="mfaError" class="alert alert-danger mt-3 text-center fw-bold" style="display:none;"></div>
-																<p id="mfaMessage">@Model.Message</p>
+																<p id="mfaMessage" class="mt-2 text-info fw-semibold">@Model.Message</p>
 
 															</div>
 															<div>

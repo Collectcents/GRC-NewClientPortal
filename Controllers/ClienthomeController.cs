@@ -354,11 +354,12 @@ namespace GRC_NewClientPortal.Controllers
                 if (string.IsNullOrEmpty(model.ErrorMessage) || model.ErrorMessage == "You have logged in with a temporary password. Please update your password now.")
                 {
                     string verificationCode = await GenerateVerificationCodeAsync(session.GetString("contactEmail"));
-                    var contactEmail = session.GetString("contactEmail");
+                var contactEmail = session.GetString("contactEmail");
+                    string maskedEmail = HttpContext.Session.GetString("maskedEmail");
                     session.SetString("VerificationCode", verificationCode);
                     model.ShowMFA = true;
-                    model.Message = "A verification code has been sent to your email. Please enter it below.";
-                }
+                    model.Message = $"To verify it's you, please enter the code you received through an email message at {maskedEmail}.";
+            }
                 
                 if (boolLogit)
                 {

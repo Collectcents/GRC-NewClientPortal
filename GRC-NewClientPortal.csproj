@@ -27,4 +27,10 @@
     <Folder Include="Models\Web\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\content\500worst-contains.list">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

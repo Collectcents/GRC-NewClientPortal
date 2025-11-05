@@ -8,9 +8,11 @@ namespace GRC_NewClientPortal.Models.Domain
     public class Common
     {
         private readonly IConfiguration _configuration;
-        public Common(IConfiguration configuration)
+        private readonly IWebHostEnvironment _env;
+        public Common(IConfiguration configuration, IWebHostEnvironment env)
         {
             _configuration = configuration;
+            _env = env;
         }
         /// <summary>
 		/// Performs initial validation for number of characters in the input string from the web user.
@@ -221,7 +223,7 @@ namespace GRC_NewClientPortal.Models.Domain
             return code.ToString("D6");
         }
 
-        public static string generateStrongPassword(int max_num, string userName)
+        public static string generateStrongPassword(int max_num, string userName, string restrictedWordsFilePath)
         {
             try
             {
@@ -238,9 +240,9 @@ namespace GRC_NewClientPortal.Models.Domain
                     result.Append(chars[b % (chars.Length)]);
                 }
                 string password = result.ToString();
-                if (!ValidatePassword(password, userName))
+                if (!ValidatePassword(password, userName, restrictedWordsFilePath))
                 {
-                    password = generateStrongPassword(max_num, userName);
+                    password = generateStrongPassword(max_num, userName, restrictedWordsFilePath);
                 }
 
                 return password;
@@ -252,7 +254,7 @@ namespace GRC_NewClientPortal.Models.Domain
 
         }
 
-        static bool ValidatePassword(string password, string userName)
+        static bool ValidatePassword(string password, string userName, string restrictedWordsFilePath)
         {
             if (Regex.IsMatch(password, @"(.)\1{2,}", RegexOptions.IgnoreCase))
             {
@@ -301,26 +303,18 @@ namespace GRC_NewClientPortal.Models.Domain
                 }
             }
 
+            // ✅ Use the file path passed from the controller
+            if (!File.Exists(restrictedWordsFilePath))
+                throw new FileNotFoundException($"Restricted password list not found at {restrictedWordsFilePath}");
 
-            //password should not contain word from restricted word list
-            string path = System.AppDomain.CurrentDomain.BaseDirectory;
-            using (StreamReader reader = new StreamReader(path + @"/Content/500worst-contains.list"))
+            string passwordLower = password.ToLower();
+            foreach (var line in File.ReadLines(restrictedWordsFilePath))
             {
-                string[] lines = File.ReadAllLines(path + @"/Content/500worst-contains.list");
-                foreach (var line in lines)
+                if (!string.IsNullOrWhiteSpace(line))
                 {
-                    if (line.Length > 0)
-                    {
-                        string passwordLower = password.ToLower();
-                        if (passwordLower.Contains(line.Trim().ToLower()))
-                        {
-                            return false;
-                        }
-
-                    }
-
+                    if (passwordLower.Contains(line.Trim().ToLower()))
+                        return false;
                 }
-
             }
 
             return true;
