@@ -266,6 +266,7 @@ namespace GRC_NewClientPortal.Controllers
                     {
                         session.SetString("ForcePasswordChange", "Yes");
                         model.ErrorMessage = "You have logged in with a temporary password. Please update your password now.";
+                        session.SetString("PasswordChangeMessage", model.ErrorMessage);
                         boolLogit = true;
                     }
                     else if (dtPassChangeDate > DateTime.MinValue)
@@ -276,6 +277,7 @@ namespace GRC_NewClientPortal.Controllers
                         {
                             session.SetString("ForcePasswordChange", "Yes");
                             model.ErrorMessage = "Your password has expired. Please update your password now.";
+                            session.SetString("PasswordChangeMessage", model.ErrorMessage);
                             boolLogit = true;
                         }
                         else
@@ -294,6 +296,7 @@ namespace GRC_NewClientPortal.Controllers
                     session.SetString("SessionACHVariablesSet", "No");
                     session.SetString("signon", row["C10BC#"].ToString());
                     session.SetString("contactEmail", row["Email"].ToString().Trim());
+                    session.SetString("pword", model.Password.Trim());
 
                     // Role Permissions
                     if (dsLogin.Tables.Count > 1)
@@ -359,7 +362,7 @@ namespace GRC_NewClientPortal.Controllers
                     session.SetString("VerificationCode", verificationCode);
                     model.ShowMFA = true;
                     model.Message = $"To verify it's you, please enter the code you received through an email message at {maskedEmail}.";
-            }
+                 }
                 
                 if (boolLogit)
                 {
@@ -367,7 +370,7 @@ namespace GRC_NewClientPortal.Controllers
                     await GetClientInfo();
                     return Json(model);
                
-            }
+                 }
 
                 else
                 {
@@ -518,7 +521,14 @@ namespace GRC_NewClientPortal.Controllers
                 return Redirect("~/FW/GoGreen_request");
 
             if (forcePwdChange == "Yes")
-                return Redirect(facsUser == "Yes" ? "~/FW/ChangePassword" : "~/ChangePassword");
+            {
+                var msg = session.GetString("PasswordChangeMessage");
+                if (!string.IsNullOrEmpty(msg))
+                {
+                    TempData["PasswordChangeMessage"] = msg;
+                }
+                return Redirect(facsUser == "Yes" ? "/changepassword" : "~/menu");
+            }
 
             string pageRedirect;
             if (facsUser == "Yes")
@@ -548,60 +558,6 @@ namespace GRC_NewClientPortal.Controllers
 
             return Redirect(pageRedirect);
         }
-
-
-        // ---------------------------------------------------------------------
-        // Complete verification and redirect (replacement for CompleteVerify)
-        // ---------------------------------------------------------------------
-        //public IActionResult CompleteVerify()
-        //{
-        //    string facsUser = HttpContext.Session.GetString("FACSUser") ?? "No";
-        //    string forcePwdChange = HttpContext.Session.GetString("ForcePasswordChange") ?? "No";
-        //    string gogreenLogin = HttpContext.Session.GetString("gogreenLogin") ?? "Yes";
-        //    string recId = HttpContext.Session.GetInt32("RecID")?.ToString() ?? "0";
-        //    string connectionString = _config.GetConnectionString("DefaultDataSource");
-
-        //    if (gogreenLogin == "No")
-        //    {
-        //        return Redirect("~/FW/GoGreen_request");
-        //    }
-
-        //    if (forcePwdChange == "Yes")
-        //    {
-        //        if (facsUser == "Yes")
-        //            return Redirect("~/FW/ChangePassword");
-        //        else
-        //            return Redirect("~/ChangePassword");
-        //    }
-
-        //    // Default redirect logic
-        //    string pageRedirect = "";
-        //    if (facsUser == "Yes")
-        //    {
-        //        try
-        //        {
-        //            using (var conn = new SqlConnection(connectionString))
-        //            using (var da = new SqlDataAdapter("exec dbo.p_cli_Get_GoGreen_Form_Info " + recId, conn))
-        //            {
-        //                var ds = new DataSet();
-        //                da.Fill(ds);
-        //                pageRedirect = ds.Tables[0].Rows.Count > 0
-        //                    ? "~/FW/menu?PopUp=NO"
-        //                    : "~/FW/menu?PopUp=YES";
-        //            }
-        //        }
-        //        catch
-        //        {
-        //            pageRedirect = "~/FW/menu?PopUp=NO";
-        //        }
-        //    }
-        //    else
-        //    {
-        //        pageRedirect = "~/menu";
-        //    }
-
-        //    return Redirect(pageRedirect);
-        //}
 
         // ---------------------------------------------------------------------
         // MFA view (for verification step)

@@ -207,25 +207,25 @@ namespace GRC_NewClientPortal.Models.Domain
         /// </summary>
         /// <param name="httpContext">Current HTTP context used to access session values and perform redirects.</param>
         /// <returns>None</returns>
-        public static void ClientSignonLogic(HttpContext httpContext)
-        {
-            if (string.IsNullOrWhiteSpace(httpContext.Session.GetString("signon")))
-            {
-                httpContext.Session.SetString("ErrMsg",
-                    "Invalid Login, Last Name, and/or Password or your secure session has expired. <br>Please login again or contact your CSR for assistance.");
-                httpContext.Response.Redirect("/clienthome");
-            }
+        //public static void ClientSignonLogic(HttpContext httpContext)
+        //{
+        //    if (string.IsNullOrWhiteSpace(httpContext.Session.GetString("signon")))
+        //    {
+        //        httpContext.Session.SetString("ErrMsg",
+        //            "Invalid Login, Last Name, and/or Password or your secure session has expired. <br>Please login again or contact your CSR for assistance.");
+        //        httpContext.Response.Redirect("/clienthome");
+        //    }
 
-            if (httpContext.Session.GetString("FACSUser") == "Yes")
-            {
-                httpContext.Response.Redirect("/unauthorized");
-            }
+        //    if (httpContext.Session.GetString("FACSUser") == "Yes")
+        //    {
+        //        httpContext.Response.Redirect("/unauthorized");
+        //    }
 
-            if (httpContext.Session.GetString("ForcePasswordChange") == "Yes")
-            {
-                httpContext.Response.Redirect("/ChangePassword");
-            }
-        }
+        //    if (httpContext.Session.GetString("ForcePasswordChange") == "Yes")
+        //    {
+        //        httpContext.Response.Redirect("/ChangePassword");
+        //    }
+        //}
 
 
         /// <summary>
@@ -238,27 +238,27 @@ namespace GRC_NewClientPortal.Models.Domain
         /// 2) hnd_logoff.aspx- if the session has expired
         /// 3) ChangePassword.aspx - if the user needs to change his password
         /// </remarks>
-        public static void FACSSignOnLogic(HttpContext httpContext, IConfiguration configuration)
-        {
-            if (string.IsNullOrWhiteSpace(httpContext.Session.GetString("signon")))
-            {
-                httpContext.Session.SetString("ErrMsg",
-                    "Invalid Login, Last Name, and/or Password or your secure session has expired.<br>Please login again or contact your CSR for assistance.");
+        //public static void FACSSignOnLogic(HttpContext httpContext, IConfiguration configuration)
+        //{
+        //    if (string.IsNullOrWhiteSpace(httpContext.Session.GetString("signon")))
+        //    {
+        //        httpContext.Session.SetString("ErrMsg",
+        //            "Invalid Login, Last Name, and/or Password or your secure session has expired.<br>Please login again or contact your CSR for assistance.");
 
-                var redirectUrl = configuration["SessionExpiredRedirectUrl"];
-                httpContext.Response.Redirect(redirectUrl ?? "/SessionExpired");
-            }
+        //        var redirectUrl = configuration["SessionExpiredRedirectUrl"];
+        //        httpContext.Response.Redirect(redirectUrl ?? "/SessionExpired");
+        //    }
 
-            if (httpContext.Session.GetString("FACSUser") == "No")
-            {
-                httpContext.Response.Redirect("/unauthorized");
-            }
+        //    if (httpContext.Session.GetString("FACSUser") == "No")
+        //    {
+        //        httpContext.Response.Redirect("/unauthorized");
+        //    }
 
-            if (httpContext.Session.GetString("ForcePasswordChange") == "Yes")
-            {
-                httpContext.Response.Redirect("/ChangePassword");
-            }
-        }
+        //    if (httpContext.Session.GetString("ForcePasswordChange") == "Yes")
+        //    {
+        //        httpContext.Response.Redirect("/ChangePassword");
+        //    }
+        //}
 
 
         /// <summary>

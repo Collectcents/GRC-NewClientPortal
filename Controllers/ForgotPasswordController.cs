@@ -111,7 +111,7 @@ namespace GRC_NewClientPortal.Controllers
                                 ""
                             );
 
-                            return Json(new { success = true, message = "Temporary password has been emailed to you." });
+                            return Json(new { success = true, message = "Temporary password has been emailed to you. Please login using that password." });
                         }
                         else
                         {
