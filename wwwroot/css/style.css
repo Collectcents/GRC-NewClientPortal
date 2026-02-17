@@ -1,3 +1,668 @@
+﻿/* Top green bar */
+
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main.client-access-page {
+    flex: 1 0 auto; /* Grow and take remaining space */
+}
+
+.auth-page-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+}
+
+
+.top-bar {
+    position: sticky;
+    top: 0;  
+    z-index: 1100;  
+    background: #a4cfba;
+    padding: 10px 30px;
+    display: flex;
+    justify-content: flex-end;
+    font-family: Arial, sans-serif;
+}
+
+.top-links a {
+    margin-left: 25px;
+    text-decoration: none;
+    color: black;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* Main white header */
+.main-header {
+    background: white;
+    border-bottom: 1px solid #e2e2e2;
+    padding: 10px 15px;
+}
+
+/* This is the row that aligns logo left + hamburger right */
+.header-container {
+    
+    margin: 0 auto; /* centers the header content */
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.menu-toggle::after {
+    display: none !important;
+}
+
+
+/* Logo */
+.header-left img {
+    display: block;
+}
+
+/* Right side */
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+/* Hamburger */
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 6px 10px;
+    line-height: 1;
+}
+
+.menu-toggle::after {
+    display: none !important;
+}
+
+/* dropdown box: rounded + shadow */
+.header-right .dropdown-menu {
+    min-width: 260px;
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 12px;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 12px 28px rgba(0,0,0,.12);
+}
+
+/* dropdown items: better spacing + hover */
+.header-right .dropdown-item {
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-weight: 600;
+}
+
+    .header-right .dropdown-item:hover {
+        background: #e8f5ec; /* matches your green theme */
+    }
+
+/* nicer divider spacing */
+.header-right .dropdown-divider {
+    margin: 8px 6px;
+}
+
+
+.hero-banner {
+    position: relative;
+    width: 100%;
+}
+
+.banner-img {
+    width: 100%;
+    height: 320px;
+    display: block;
+}
+
+/* Green overlay */
+.hero-banner::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 128, 0, 0.15); 
+    pointer-events: none;
+}
+
+
+.banner-text {
+    position: absolute;
+    left: 40px; 
+    top: 50%; 
+    transform: translateY(-50%);
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* Main Page Container */
+.client-access-page {
+    max-width: 1800px;
+    margin: 10px auto;
+    padding: 10px;
+}
+
+/* Two-column layout using Grid */
+.content-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.important-message {
+    background: #eef5ff;
+    border-left: 4px solid #007bff;
+    padding: 15px;
+}
+
+.important-message h2 {
+        color: black ;
+    }
+.instructions {
+    background: #f9f9f9;
+    padding: 15px;
+    border-left: 4px solid #28a745;
+}
+
+/* Login Panel */
+.login-container {
+    background: #fafafa;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.08);
+}
+
+/* Make responsive for mobile */
+@media (max-width: 768px) {
+    .content-area {
+        grid-template-columns: 1fr; /* one column on mobile */
+    }
+}
+
+/* Tablets & small laptops */
+/*@media (max-width: 1024px) {
+    .auth-page-section {
+        align-items: flex-start;
+        padding: 28px 16px;
+    }
+
+    .auth-form-card {
+        max-width: 520px;
+        padding: 26px 22px;
+    }
+
+    .top-bar {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 16px;
+    }
+
+    .top-links a {
+        margin-left: 12px;
+    }
+}*/
+
+/* Small tablets & phones */
+/*@media (max-width: 768px) {
+    .auth-form-card {
+        max-width: 100%;
+        padding: 22px 18px;
+    }
+
+    .button-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-common {
+        width: 100%;
+        min-width: 0;
+        white-space: normal;
+    }
+}*/
+
+
+.form-group {
+    margin-bottom: 18px;
+    color:black;
+}
+
+
+.login-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+    .login-actions .links a {
+        margin-right: 10px;
+    }
+
+.auth-page-section {
+    flex: 1;
+    background: linear-gradient( to bottom, #c8e6c9 0%, /* very pale mint green */
+    #dcedc8 40%, /* soft light green-yellow */
+    #f0f4f1 75%, /* extremely light greenish white */
+    #ffffff 100% /* pure white */
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+.auth-form-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 500px;
+    padding: 30px 35px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    border: 2px solid #cfe6d6;
+}
+
+.auth-form-title {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2e6f4e;
+}
+.auth-form-field {
+    margin-bottom: 16px;
+}
+
+    .auth-form-field label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .auth-form-field input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+        .auth-form-field input:focus {
+            outline: none;
+            border-color: #66a889;
+            box-shadow: 0 0 0 2px rgba(102, 168, 137, 0.2);
+        }
+
+
+/* Instructions panel – matches existing style  this is used in change password screen */
+.instruction-wrapper {
+    margin-bottom: 20px;
+}
+
+.instruction-toggle {
+    width: 100%;
+    border: none;
+    background: #eef6f1;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #2e6f4e;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.instruction-card {
+    display: none;
+    margin-top: 10px;
+    background: #f8fcfa;
+    border-left: 4px solid #66a889;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+    .password-input-wrapper input {
+        width: 100%;
+        padding-right: 42px; /* space for eye icon */
+    }
+
+.password-toggle {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+    .password-toggle:hover {
+        color: #000;
+    }
+
+
+
+
+/* =========================
+   COMMON BUTTON STYLES
+========================= */
+
+.btn-common {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    min-width: 140px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+    /* Disabled state (works for <button> and <a>) */
+    .btn-common:disabled,
+    .btn-common.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+
+button.btn-primary-common {
+    background-color: #2e6f4e;
+    color: #ffffff;
+}
+
+    button.btn-primary-common:hover:not(:disabled) {
+        background-color: #24593e;
+        box-shadow: 0 4px 12px rgba(46, 111, 78, 0.25);
+        transform: translateY(-1px);
+    }
+
+.btn-secondary-common {
+    background-color: #ffffff;
+    color: #2e6f4e;
+    border: 2px solid #2e6f4e;
+}
+
+    .btn-secondary-common:hover:not(:disabled) {
+        background-color: #e8f5ec;
+    }
+
+
+.site-footer {
+    /*margin-top: 20px;*/
+    padding: 10px 0;
+    text-align: center;
+    background: #f0f0f0;
+    font-size: 14px;
+    color: #444;
+}
+
+    .site-footer a {
+        color: #0077cc;
+        text-decoration: none;
+    }
+
+ /* this code is for home page */
+
+.home-center {
+    padding: 40px 14px;
+    height : 100%;
+    background: #f6f8f7;
+}
+
+.home-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.welcome-card {
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    border-left: 6px solid #2e6f4e;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.welcome-title {
+    margin: 0;
+    color: #2e6f4e;
+    font-weight: 800;
+}
+
+.welcome-text {
+    margin: 8px 0 0;
+    color: #333;
+}
+
+.welcome-alert {
+    margin-top: 10px;
+    font-weight: 700;
+    color: #b02a37;
+}
+
+.tile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.tile {
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    border-radius: 14px;
+    padding: 40px 14px;
+    text-decoration: none;
+    color: #222;
+    text-align: center;
+    box-shadow: 0 10px 22px rgba(0,0,0,.06);
+    transition: transform .08s ease, box-shadow .2s ease;
+}
+
+    .tile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(0,0,0,.10);
+    }
+
+.tile-icon {
+    font-size: 34px;
+    color: #2e6f4e;
+}
+
+.tile-title {
+    margin-top: 10px;
+    font-weight: 800;
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+    .tile-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+    .tile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Initial hidden state */
+.welcome-card,
+.tile {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.5s ease forwards;
+}
+
+/* Slight delay so tiles come after welcome */
+.tile {
+    animation-delay: 0.15s;
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+/* css for ACH */
+
+.page-shell {
+    padding: 22px 14px;
+    background: linear-gradient(to bottom, #f4f7f5, #ffffff);
+}
+
+.page-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Header */
+.page-head {
+    margin-bottom: 14px;
+}
+
+.page-title {
+    margin: 0;
+    font-weight: 900;
+    color: #2e6f4e;
+}
+
+.page-subtitle {
+    margin: 6px 0 0;
+    color: #555;
+    max-width: 950px;
+}
+
+.req-note {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #666;
+}
+
+    .req-note span,
+    .req {
+        color: #b02a37;
+        font-weight: 800;
+    }
+
+/* Form card */
+.form-card {
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 10px 22px rgba(0,0,0,.06);
+}
+
+/* Sections */
+.form-section {
+    padding: 14px;
+    border: 1px solid #eef0ee;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    background: #fcfdfc;
+}
+
+.section-title {
+    margin: 0 0 10px;
+    font-weight: 900;
+    color: #2e6f4e;
+    font-size: 16px;
+}
+
+.form-hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.form-legal {
+    font-size: 13px;
+    color: #444;
+    background: #f6fbf7;
+    border-left: 4px solid #2e6f4e;
+    padding: 10px 12px;
+    border-radius: 10px;
+}
+
+/* Buttons */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    padding-top: 6px;
+}
+
+@media (max-width: 768px) {
+    .form-card {
+        padding: 14px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* old css code for the previous style.*/
+
 .lefttable {
     width: 179px;
 }
@@ -27,9 +692,8 @@ body {
     color: #ffffff;
     font-family: Verdana, Arial, Helvetica;
     line-Height: 17px;
-    margin-left: 20px;
     margin-right: 0px;
-    margin-top: 20px;
+    /*margin-top: 20px;*/
     margin-bottom: 0px;
 }
 
@@ -382,14 +1046,17 @@ td {
 }
 
 .disableButton {
-    opacity: .50;
+    opacity: .60;
     filter: alpha(opacity=50);
-    pointer-events: none;
+    /*pointer-events: none;*/
+    cursor: default;
 }
 
 .enableButton {
     opacity: 1;
     filter: alpha(opacity=100);
+    pointer-events: auto; /* Allow clicks */
+    cursor: pointer;
 }
 
 .dvmenu {
@@ -423,3 +1090,8 @@ td {
 .maintablewidth {
     width: 800px;
 }
+
+
+
+
+

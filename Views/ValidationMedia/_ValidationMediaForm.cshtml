@@ -1,0 +1,202 @@
+﻿@model GRC_NewClientPortal.Models.ValidationMediaViewModel
+
+
+<form id="validationMediaForm" class="form-card" asp-controller="ValidationMedia"  asp-action="Index" method="post"  enctype="multipart/form-data" autocomplete="off">
+
+    @Html.AntiForgeryToken()
+
+    <div class="form-section">
+        <h3 class="section-title">Validation Media</h3>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" asp-for="InstitutionName"><span class="req">*</span> Institution Name</label>
+                <input class="form-control" asp-for="InstitutionName" />
+                <span asp-validation-for="InstitutionName" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" asp-for="SubmitterName"><span class="req">*</span> Person Submitting Media</label>
+                <input class="form-control" asp-for="SubmitterName" />
+                <span asp-validation-for="SubmitterName" class="text-danger small"></span>
+            </div>
+
+            
+            <div class="col-md-6">
+                <label class="form-label" asp-for="ContactPhone">Contact Phone Number</label>
+                
+                <input class="form-control" asp-for="ContactPhone" id="ContactPhone" inputmode="numeric" autocomplete="tel" placeholder="555-444-3333" />
+                <span asp-validation-for="ContactPhone" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" asp-for="ContactEmail"><span class="req">*</span> Contact E-mail Address</label>
+                <input class="form-control" asp-for="ContactEmail" />
+                <span asp-validation-for="ContactEmail" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label" asp-for="Reason"><span class="req">*</span> Reason for Submitting Media</label>
+                <select class="form-select" asp-for="Reason" id="Reason">
+                    <option value="">--choose--</option>
+                    <option value="Media being provided at same time of placement">Media being provided at same time of placement</option>
+                    <option value="Media being provided after placements were previously submitted">Media being provided after placements were previously submitted</option>
+                    <option value="Responding to a request for media">Responding to a request for media</option>
+                    <option value="Other">Other</option>
+                </select>
+                <span asp-validation-for="Reason" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label" asp-for="Comments">Comments</label>
+                <textarea class="form-control" asp-for="Comments" rows="4"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3 class="section-title">Attach validation media file(s)</h3>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label" asp-for="ValidationMedia1"><span class="req">*</span> Validation Media File 1</label>
+                <input class="form-control" asp-for="ValidationMedia1" type="file"
+                       accept=".xls,.xlt,.xlm,.xlsx,.xlsm,.xltx,.xltm,.xlsb,.xla,.xlam,.xll,.xlw,.txt,.zip,.pdf,.csv,.doc,.docx" />
+                <span asp-validation-for="ValidationMedia1" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label" asp-for="ValidationMedia2">Validation Media File 2</label>
+                <input class="form-control" asp-for="ValidationMedia2" type="file"
+                       accept=".xls,.xlt,.xlm,.xlsx,.xlsm,.xltx,.xltm,.xlsb,.xla,.xlam,.xll,.xlw,.txt,.zip,.pdf,.csv,.doc,.docx" />
+                <span asp-validation-for="ValidationMedia2" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label" asp-for="ValidationMedia3">Validation Media File 3</label>
+                <input class="form-control" asp-for="ValidationMedia3" type="file"
+                       accept=".xls,.xlt,.xlm,.xlsx,.xlsm,.xltx,.xltm,.xlsb,.xla,.xlam,.xll,.xlw,.txt,.zip,.pdf,.csv,.doc,.docx" />
+                <span asp-validation-for="ValidationMedia3" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-success px-4">Submit</button>
+        <a class="btn btn-outline-secondary px-4" asp-controller="ValidationMedia" asp-action="Index">Clear</a>
+    </div>
+</form>
+<script>
+    (function () {
+
+      function attachPhoneMask() {
+        const el = document.getElementById("ContactPhone");
+        if (!el) return;
+
+        // Prevent double-binding if partial re-renders
+        if (el.dataset.maskAttached === "true") return;
+        el.dataset.maskAttached = "true";
+
+        function formatPhone(digits) {
+          digits = digits.slice(0, 10);
+          const p1 = digits.slice(0, 3);
+          const p2 = digits.slice(3, 6);
+          const p3 = digits.slice(6, 10);
+
+          if (digits.length <= 3) return p1;
+          if (digits.length <= 6) return `${p1}-${p2}`;
+          return `${p1}-${p2}-${p3}`;
+        }
+
+        function digitsOnly(v) {
+          return (v || "").replace(/\D/g, "");
+        }
+
+        function setCaretToEnd(input) {
+          const len = input.value.length;
+          try { input.setSelectionRange(len, len); } catch { }
+        }
+
+        function setError(message) {
+          const span = document.querySelector('[data-valmsg-for="ContactPhone"]');
+          if (!span) return;
+
+          if (message) {
+            span.classList.remove("field-validation-valid");
+            span.classList.add("field-validation-error");
+            span.textContent = message;
+          } else {
+            span.classList.remove("field-validation-error");
+            span.classList.add("field-validation-valid");
+            span.textContent = "";
+          }
+        }
+
+        function validateExact10() {
+          const digits = digitsOnly(el.value);
+
+          // If phone is optional, change this rule to:
+          // if (digits.length === 0) { setError(""); return true; }
+          // if (digits.length !== 10) {
+          //   setError("Phone number must be exactly 10 digits (e.g., 647-365-1789).");
+          //   return false;
+          // }
+
+          setError("");
+          return true;
+        }
+
+        // Format on input (typing/paste/autofill)
+        el.addEventListener("input", () => {
+          const digits = digitsOnly(el.value);
+          const formatted = formatPhone(digits);
+
+          if (el.value !== formatted) {
+            el.value = formatted;
+            setCaretToEnd(el);
+          }
+
+          // clear error as soon as it becomes valid
+          if (digits.length === 10) setError("");
+        });
+
+        // Allow only digits + control keys, block > 10 digits
+        el.addEventListener("keydown", (e) => {
+          const allowedKeys = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
+          if (allowedKeys.includes(e.key)) return;
+
+          if (e.ctrlKey || e.metaKey) return; // copy/paste/select all etc.
+
+          if (!/^\d$/.test(e.key)) {
+            e.preventDefault();
+            return;
+          }
+
+          const digits = digitsOnly(el.value);
+          if (digits.length >= 10) {
+            e.preventDefault();
+          }
+        });
+
+        // Validate when leaving the field
+        el.addEventListener("blur", validateExact10);
+      }
+
+      // Attach on initial page load
+      document.addEventListener("DOMContentLoaded", attachPhoneMask);
+
+      // Attach again after your AJAX partial swaps the form HTML
+      // (Your existing code replaces #validationMediaContainer)
+      const container = document.getElementById("validationMediaContainer");
+      if (container && window.MutationObserver) {
+        const obs = new MutationObserver(() => attachPhoneMask());
+        obs.observe(container, { childList: true, subtree: true });
+      }
+
+    })();
+</script>
+
+
+

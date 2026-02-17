@@ -1,0 +1,164 @@
+﻿@model GRC_NewClientPortal.Models.ACHAuthorizationViewModel
+
+
+<form id="achForm" class="form-card" asp-controller="ACH" asp-action="Index" method="post" autocomplete="off">
+    @Html.AntiForgeryToken()
+    <!-- Account Information -->
+    <div class="form-section">
+        <h3 class="section-title">Account Information</h3>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="CheckingAccountNumber"><span class="req">*</span> Checking Account Number</label>
+                <input class="form-control" asp-for="CheckingAccountNumber" maxlength="17" inputmode="numeric" autocomplete="off" />
+                <span asp-validation-for="CheckingAccountNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="SavingsAccountNumber"><span class="req">*</span> Or, Savings Account Number</label>
+                <input class="form-control" asp-for="SavingsAccountNumber" type="password" maxlength="17" inputmode="numeric" />
+                <div class="form-hint">Enter either Checking or Savings, not both.</div>
+                <span asp-validation-for="SavingsAccountNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="RoutingNumber"><span class="req">*</span> Routing Number</label>
+                <input class="form-control" asp-for="RoutingNumber" maxlength="9" inputmode="numeric" />
+                <div class="form-hint">Must be 9 digits.</div>
+                <span asp-validation-for="RoutingNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="FIN"><span class="req">*</span> Financial Institution's Name</label>
+                <input class="form-control" asp-for="FIN" />
+                <span asp-validation-for="FIN" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="FIA"><span class="req">*</span> Financial Institution's Address</label>
+                <input class="form-control" asp-for="FIA" />
+                <span asp-validation-for="FIA" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="CCity"><span class="req">*</span> City</label>
+                <input class="form-control" asp-for="CCity" />
+                <span asp-validation-for="CCity" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="CState"><span class="req">*</span> State</label>
+                <select class="form-select" asp-for="CState" >
+                    <option value="">--choose--</option>
+                    <option>OH</option>
+                    <option>CA</option>
+                    <option>NY</option>
+                    <!-- populate later -->
+                </select>
+                <span asp-validation-for="CState" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="CZipcode"><span class="req">*</span> Zipcode</label>
+                <input class="form-control" asp-for="CZipcode" />
+                <span asp-validation-for="CZipcode" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="CEffectiveDate"><span class="req">*</span> Effective Date</label>
+                <input class="form-control" asp-for="CEffectiveDate"  type="date" />
+                <span asp-validation-for="CEffectiveDate" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="FIDN"><span class="req">*</span> Federal ID Number</label>
+                <input class="form-control" asp-for="FIDN"  />
+                <span asp-validation-for="FIDN" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="form-legal mt-3">
+            This authority is to remain in full force and effect
+            until you have received written notification from an authorized agent of the
+            company listed below of its termination and in such a time and manner as to afford
+            the company a reasonable opportunity to act on it. I agree to provide five (5)
+            business days advance notice to process any requested changes to the information I have provided.
+        </div>
+    </div>
+
+    <!-- Authorized Agent -->
+    <div class="form-section">
+        <h3 class="section-title">Authorized Agent Information</h3>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="NAgent"><span class="req">*</span> Name of Authorized Agent of Company</label>
+                <input class="form-control" asp-for="NAgent"  />
+                <span asp-validation-for="NAgent" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="CN"><span class="req">*</span> Company Name</label>
+                <input class="form-control" asp-for="CN"  />
+                <span asp-validation-for="CN" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="CA"><span class="req">*</span> Company Address</label>
+                <input class="form-control" asp-for="CA"  />
+                <span asp-validation-for="CA" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="ACity"><span class="req">*</span> City</label>
+                <input class="form-control" asp-for="ACity"  />
+                <span asp-validation-for="ACity" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="AState"><span class="req">*</span> State</label>
+                <select class="form-select" asp-for="AState" >
+                    <option value="">--choose--</option>
+                    <option>OH</option>
+                    <option>CA</option>
+                    <option>NY</option>
+                </select>
+                <span asp-validation-for="AState" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="AZipcode"><span class="req">*</span> Zipcode</label>
+                <input class="form-control" asp-for="AZipcode"  />
+                <span asp-validation-for="AZipcode" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="ADate"><span class="req">*</span> Date</label>
+                <input class="form-control" asp-for="ADate"  type="date" />
+                <span asp-validation-for="ADate" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="APhoneN"><span class="req">*</span> Phone Number</label>
+                <input class="form-control" asp-for="APhoneN"  placeholder="(555) 555-5555" />
+                <span asp-validation-for="APhoneN" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label" for="AComments">Comments</label>
+                <textarea class="form-control" asp-for="AComments"  rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="form-actions">
+        <button type="submit" class="btn btn-success px-4">Submit</button>
+        <a class="btn btn-outline-secondary px-4" asp-controller="ACH" asp-action="Index"> Clear </a>
+        @* <button type="button" class="btn btn-outline-secondary px-4" id="btnClear">Clear</button> *@
+    </div>
+
+</form>

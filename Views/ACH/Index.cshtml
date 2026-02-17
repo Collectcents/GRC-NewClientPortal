@@ -1,0 +1,122 @@
+﻿ @model GRC_NewClientPortal.Models.ACHAuthorizationViewModel
+@{
+    ViewData["Title"] = "ACH";
+    Layout = "_CommonLayout";
+}
+<section class="page-shell">
+    <div class="page-wrap">
+
+        <!-- Title / Intro -->
+        <div class="page-head">
+            <h2 class="page-title">ACH Authorization</h2>
+            <p class="page-subtitle">
+              I authorize General Revenue Corporation to initiate deposits into the accounts described below. 
+              (Please contact your bank to make sure you have the correct routing number for your financial institution to receive ACH payments.)
+            </p>
+            <div class="req-note"><span>*</span> Indicates required fields</div>
+        </div>
+        <!-- This container is what we replace on AJAX validation failure -->
+        <div id="achFormContainer">
+            <partial name="_AchForm" model="Model" />
+        </div>               
+    </div>
+</section>
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("submit", async (e) => {
+            const form = e.target;
+            if (!form || form.id !== "achForm") return;
+
+            e.preventDefault();
+
+            const container = document.getElementById("achFormContainer");
+            const formData = new FormData(form);
+
+            const resp = await fetch(form.action, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            });
+
+            const contentType = resp.headers.get("content-type") || "";
+
+            // If success returns JSON with redirect URL
+            if (contentType.includes("application/json")) {
+                const json = await resp.json();
+                if (json.ok && json.redirectUrl) {
+                    window.location.href = json.redirectUrl;
+                    return;
+                }
+            }
+
+            // Otherwise HTML partial is returned (invalid state)
+            const html = await resp.text();
+            container.innerHTML = html;
+
+            // Re-hook unobtrusive validation after swapping HTML
+            if (window.jQuery && window.jQuery.validator && window.jQuery.validator.unobtrusive) {
+                window.jQuery.validator.unobtrusive.parse(container);
+            }
+        });
+    </script>
+		<!-- SiteCatalyst code version: H.20.3.
+		Copyright 1997-2009 Omniture, Inc. More info available at
+		http://www.omniture.com -->
+	     <script language="JavaScript" type="text/javascript" src="~/js/s_code.js"></script>
+		<script language="JavaScript" type="text/javascript">
+		/* You may give each page an identifying name, server, and channel on
+		the next lines. */
+				
+		s.pageName=""
+		s.server=""
+		s.channel="GRC"
+		s.pageType=""
+		s.prop1=""
+		s.prop2=""
+		s.prop3=""
+		s.prop4=""
+		s.prop5=""
+		/* Conversion Variables */
+		s.campaign=""
+		s.state=""
+		s.zip=""
+		s.events=""
+		s.products=""
+		s.purchaseID=""
+		s.eVar1=""
+		s.eVar2=""
+		s.eVar3=""
+		s.eVar4=""
+		s.eVar5=""
+		/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+		var s_code=s.t();if(s_code)document.write(s_code)//--></script>
+		<!--/DO NOT REMOVE/-->
+		<!-- End SiteCatalyst code version: H.20.3. -->	
+		<!-- Google Analytics -->
+		<script type="text/javascript">
+			var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+			document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+		</script>
+		<script type="text/javascript">
+			try 
+			{
+				var pageTracker = _gat._getTracker("UA-6408068-1");
+				pageTracker._trackPageview();
+			}
+			catch(err) 
+			{
+			}
+		</script>
+     
+
+   
+}
+
+
+
+

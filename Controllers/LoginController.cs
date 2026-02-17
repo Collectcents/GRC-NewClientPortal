@@ -11,24 +11,22 @@ using GRC_NewClientPortal.Models;
 
 namespace GRC_NewClientPortal.Controllers
 {
-    public class ClienthomeController : Controller
+    public class LoginController : Controller
     {
-
         private readonly IConfiguration _config;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<SendMail> _sendMailLogger;
+        private readonly IWebHostEnvironment _env;
 
-
-        public ClienthomeController(IConfiguration config, IHttpContextAccessor httpContextAccessor, ILogger<SendMail> sendMailLogger)
+        public LoginController(IConfiguration config, IHttpContextAccessor httpContextAccessor, ILogger<SendMail> sendMailLogger, IWebHostEnvironment env)
         {
             _config = config;
             _httpContextAccessor = httpContextAccessor;
             _sendMailLogger = sendMailLogger;
+            _env = env;
         }
-
-       
         [HttpGet]
-        public async Task<IActionResult> clienthome()
+        public async Task<IActionResult> ClientHome()
         {
             var session = _httpContextAccessor.HttpContext.Session;
 
@@ -85,7 +83,6 @@ namespace GRC_NewClientPortal.Controllers
             // NOTE: session timeout is configured in Program.cs; cannot be set per-session.
             return View("clienthome", model);
         }
-
         /// <summary>
         /// Gets client info from database.
         /// </summary>
@@ -108,7 +105,7 @@ namespace GRC_NewClientPortal.Controllers
                             $"exec dbo.ssp_APG_GRCWeb_client_GetClientInfo {recId}", conn);
 
                         DataSet dsClientDetails = new DataSet();
-                        await Task.Run(() => daClientDetails.Fill(dsClientDetails)); 
+                        await Task.Run(() => daClientDetails.Fill(dsClientDetails));
 
                         string clientBaseNumber = string.Empty,
                                clientName = string.Empty,
@@ -145,7 +142,7 @@ namespace GRC_NewClientPortal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> clienthome([FromBody] ClienthomeModel model)
+        public async Task<IActionResult> ClientHome([FromBody] ClienthomeModel model)
 
         {
             var session = _httpContextAccessor.HttpContext.Session;
@@ -163,7 +160,7 @@ namespace GRC_NewClientPortal.Controllers
             string connStr = _config.GetConnectionString("DefaultDataSource");
             string hashedPassword = model.Password;
             bool boolLogit = false;
-            string boolMemos; 
+            string boolMemos;
 
             string storedPassword = null;
             using (var sqlConn = new SqlConnection(connStr))
@@ -184,7 +181,7 @@ namespace GRC_NewClientPortal.Controllers
                 if (sqlresult != null)
                 {
                     storedPassword = sqlresult.ToString();
-                    Console.WriteLine($"Password from DB: {storedPassword}"); 
+                    Console.WriteLine($"Password from DB: {storedPassword}");
                 }
                 else
                 {
@@ -208,7 +205,7 @@ namespace GRC_NewClientPortal.Controllers
                     model.ErrorMessage = "Invalid Login or Last Name.";
                     Console.WriteLine("DB doesnot have the Login. Please enter the details again.");
                     return Json(model);
-                    
+
 
                     //hashedPassword = GRC_NewClientPortal.Models.Domain.Common.GetHash(model.Password);
                 }
@@ -228,13 +225,13 @@ namespace GRC_NewClientPortal.Controllers
                     boolMemos = row["C10MEM"].ToString();
                     if (boolMemos == "Y")
                     {
-                        session.SetString("boolMemos","true");
+                        session.SetString("boolMemos", "true");
                     }
                     else
                     {
                         session.SetString("boolMemos", "false");
                     }
-                    
+
                     session.SetInt32("RecID", Convert.ToInt32(row["RecID"]));
                     session.SetString("FACSDirectory", row["FACSDirectory"].ToString());
                     session.SetString("DPEntrystatus", row["DPEntry"].ToString());
@@ -260,7 +257,7 @@ namespace GRC_NewClientPortal.Controllers
                         model.ShowMFA = false;
                         // stop execution and show error on screen
                         return Json(model);
-                      
+
                     }
                     else if (tempPassword == 1)
                     {
@@ -313,7 +310,7 @@ namespace GRC_NewClientPortal.Controllers
 
                         // Build WebServerURL and FACSsignon
                         string facsDirectory = session.GetString("FACSDirectory");
-                        string strResourceConfig = _config[$"AppSettings:{facsDirectory}"]; 
+                        string strResourceConfig = _config[$"AppSettings:{facsDirectory}"];
                         int i = strResourceConfig.IndexOf(",");
                         string strResource = strResourceConfig.Substring(0, i);
                         string strNamespaceNumber = strResourceConfig.Substring(i + 1); // everything after comma
@@ -336,7 +333,7 @@ namespace GRC_NewClientPortal.Controllers
                     int iach = 0;
                     using (var cmdACH = new SqlCommand(sqlACH, sqlConn))
                     {
-                   
+
                         iach = Convert.ToInt32(await cmdACH.ExecuteScalarAsync());
                         await sqlConn.CloseAsync();
                     }
@@ -348,45 +345,45 @@ namespace GRC_NewClientPortal.Controllers
                     model.ErrorMessage = "Invalid Login, Last Name, and/or Password. <br>Please login again or contact your CSR for assistance.";
                     model.ShowMFA = false;
                     return Json(model);
-                   
+
                 }
             }
-                Console.WriteLine($"ErrorMessage: {model.ErrorMessage}");
+            Console.WriteLine($"ErrorMessage: {model.ErrorMessage}");
 
-                // Generate MFA only if there is no error or if it's a temporary password
-                if (string.IsNullOrEmpty(model.ErrorMessage) || model.ErrorMessage == "You have logged in with a temporary password. Please update your password now.")
-                {
-                    string verificationCode = await GenerateVerificationCodeAsync(session.GetString("contactEmail"));
+            // Generate MFA only if there is no error or if it's a temporary password
+            if (string.IsNullOrEmpty(model.ErrorMessage) || model.ErrorMessage == "You have logged in with a temporary password. Please update your password now.")
+            {
+                string verificationCode = await GenerateVerificationCodeAsync(session.GetString("contactEmail"));
                 var contactEmail = session.GetString("contactEmail");
-                    string maskedEmail = HttpContext.Session.GetString("maskedEmail");
-                    session.SetString("VerificationCode", verificationCode);
-                    model.ShowMFA = true;
-                    model.Message = $"To verify it's you, please enter the code you received through an email message at {maskedEmail}.";
-                 }
-                
-                if (boolLogit)
-                {
-                    await LogItAsync(session.GetString("VerificationCode"));
-                    await GetClientInfo();
-                    return Json(model);
-               
-                 }
+                string maskedEmail = HttpContext.Session.GetString("maskedEmail");
+                session.SetString("VerificationCode", verificationCode);
+                model.ShowMFA = true;
+                model.Message = $"To verify it's you, please enter the code you received through an email message at {maskedEmail}.";
+            }
 
-                else
-                {
-                    session.SetString("signon", "");
-                    session.SetString("CSR EMail", _config["AppSettings:DefaultClientContact"]);
-                    session.SetString("pword", "");
-                    session.SetString("schoolname", "");
-                    session.SetString("boolMemos", "false");
-
-                    
-                    model.ErrorMessage = "Invalid login. <br>Please login again or contact your CSR for assistance.";
-                    model.ShowMFA = false;
+            if (boolLogit)
+            {
+                await LogItAsync(session.GetString("VerificationCode"));
+                await GetClientInfo();
                 return Json(model);
-                }
-            }           
-        
+
+            }
+
+            else
+            {
+                session.SetString("signon", "");
+                session.SetString("CSR EMail", _config["AppSettings:DefaultClientContact"]);
+                session.SetString("pword", "");
+                session.SetString("schoolname", "");
+                session.SetString("boolMemos", "false");
+
+
+                model.ErrorMessage = "Invalid login. <br>Please login again or contact your CSR for assistance.";
+                model.ShowMFA = false;
+                return Json(model);
+            }
+        }
+
         private async Task LogItAsync(string verificationCode)
         {
             var httpContext = _httpContextAccessor.HttpContext;
@@ -440,7 +437,7 @@ namespace GRC_NewClientPortal.Controllers
                 "<img src='https://www.generalrevenue.com/ContentSite/styles/i/logo_home.gif'>" +
                 "<p>Here's your one-time login code.</p>" +
                 "<p>Do not share this code with anyone. This code will expire in 15 minutes.</p><b>" +
-                code ,
+                code,
                 "</b><p>If you or an authorized user did not initiate this action, please contact us.</p>" +
                 "<p>Call (800) 234-1472</p>"
             );
@@ -485,7 +482,7 @@ namespace GRC_NewClientPortal.Controllers
                 {
                     success = false,
                     errorMessage = "Verification code does not match. Please enter the correct code or request a new one."
-            });                
+                });
 
             }
         }
@@ -504,8 +501,6 @@ namespace GRC_NewClientPortal.Controllers
             ViewBag.MaskedEmail = HttpContext.Session.GetString("maskedEmail");
             return View("VerifyMFA");
         }
-
-
 
         public async Task<IActionResult> CompleteVerify()
         {
@@ -527,7 +522,12 @@ namespace GRC_NewClientPortal.Controllers
                 {
                     TempData["PasswordChangeMessage"] = msg;
                 }
-                return Redirect(facsUser == "Yes" ? "/changepassword" : "~/menu");
+                //return Redirect(facsUser == "Yes" ? "/changepassword" : "~/menu");
+                if (facsUser == "Yes")
+                {
+                    return RedirectToAction("ChangePassword", "Login");
+                }
+
             }
 
             string pageRedirect;
@@ -547,7 +547,7 @@ namespace GRC_NewClientPortal.Controllers
                 }
                 catch (Exception ex)
                 {
-                   // _logger.LogError(ex, "Error checking GoGreen info.");
+                    // _logger.LogError(ex, "Error checking GoGreen info.");
                     pageRedirect = "~/FW/menu?PopUp=NO";
                 }
             }
@@ -562,20 +562,330 @@ namespace GRC_NewClientPortal.Controllers
         // ---------------------------------------------------------------------
         // MFA view (for verification step)
         // ---------------------------------------------------------------------
-        [HttpGet]
-        public IActionResult VerifyMFA()
+        //[HttpGet]
+        //public IActionResult VerifyMFA()
+        //{
+        //    ViewBag.MaskedEmail = HttpContext.Session.GetString("maskedEmail");
+        //    ViewBag.Message = TempData["Message"];
+        //    return View();
+        //}
+
+
+        //[HttpGet("/forgotpassword")]
+        public IActionResult ForgotPassword()
         {
-            ViewBag.MaskedEmail = HttpContext.Session.GetString("maskedEmail");
-            ViewBag.Message = TempData["Message"];
+            Console.WriteLine($"ForgotPassword() called at {DateTime.Now} | URL: {Request.Path}");
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword([FromBody] ForgotPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                Console.WriteLine(errors);
+                return Json(new { success = false, message = "Please enter valid data" });
+
+            }
+            //if (!ModelState.IsValid)
+            //    return Json(new { success = false, message = "Invalid input data." });
+
+
+            try
+            {
+                string connectionString = _config.GetConnectionString("DefaultDataSource");
+                string fname = string.Empty;
+                string userName = string.Empty;
+                int max_num = 8;
+
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    await sqlConn.OpenAsync();
+
+                    using (SqlCommand cmdCheck = new SqlCommand(@"
+                    SELECT C10FNM FROM tbl_FACS_client_contact_data 
+                    WHERE UPPER(C10BC#) = @Signon 
+                    AND UPPER(C10LNM) = @LName 
+                    AND UPPER(MaidenName) = @MaidenName 
+                    AND UPPER(Email) = @Email", sqlConn))
+                    {
+                        cmdCheck.Parameters.AddWithValue("@Signon", model.Signon.ToUpper());
+                        cmdCheck.Parameters.AddWithValue("@LName", model.LastName.ToUpper());
+                        cmdCheck.Parameters.AddWithValue("@MaidenName", model.MaidenName.ToUpper());
+                        cmdCheck.Parameters.AddWithValue("@Email", model.Email.ToUpper());
+
+                        var result = await cmdCheck.ExecuteScalarAsync();
+
+                        if (result == null)
+                        {
+                            return Json(new { success = false, message = "Supplied information does not match the records. Please contact your Client Services Representative for Assistance." });
+
+                        }
+
+                        fname = result.ToString().Trim();
+                        userName = $"{fname} {model.LastName}";
+                    }
+                    string path = Path.Combine(_env.WebRootPath, "content", "500worst-contains.list");
+                    string strTempPassword = GRC_NewClientPortal.Models.Domain.Common.generateStrongPassword(max_num, userName, path);
+
+                    using (SqlCommand cmd = new SqlCommand("p_cli_forgot_password", sqlConn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add(new SqlParameter("@BaseClientNumber", SqlDbType.NVarChar, 8) { Value = model.Signon });
+                        cmd.Parameters.Add(new SqlParameter("@LastName", SqlDbType.NVarChar, 25) { Value = model.LastName });
+                        cmd.Parameters.Add(new SqlParameter("@MaidenName", SqlDbType.NVarChar, 25) { Value = model.MaidenName });
+                        cmd.Parameters.Add(new SqlParameter("@Email", SqlDbType.NVarChar, 40) { Value = model.Email });
+                        cmd.Parameters.Add(new SqlParameter("@TmpPassword", SqlDbType.NVarChar, 8) { Value = strTempPassword });
+
+                        int iReturn = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+
+                        if (iReturn == 1)
+                        {
+                            var mailer = new GRC_NewClientPortal.Models.GRCEmail.SendMail(_config, _sendMailLogger);
+                            await mailer.SendEmailAsync(
+                                model.Email,
+                                _config["AppSettings:EmailFrom_Password_Reset"],
+                                "",
+                                _config["AppSettings:EmailCC_Password_Reset"],
+                                _config["AppSettings:EmailBCC_Password_Reset"],
+                                _config["AppSettings:EmailSubject_Password_Reset"],
+                                _config["AppSettings:EmailBody_Password_Reset"]
+                                    .Replace("~tmppass~", strTempPassword)
+                                    .Replace("~n~", "\n"),
+                                ""
+                            );
+
+                            return Json(new { success = true, message = "Temporary password has been emailed to you. Please login using that password." });
+                        }
+                        else
+                        {
+                            return Json(new { success = false, message = "Supplied information does not match our records." });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
+
+        //[HttpGet("/changepassword")]
+        public IActionResult ChangePassword()
+        {
+            Console.WriteLine($"ChangePassword() called at {DateTime.Now} | URL: {Request.Path}");
+
+
+            // Check if user is logged in
+            var signon = HttpContext.Session.GetString("signon");
+            if (string.IsNullOrWhiteSpace(signon))
+            {
+                HttpContext.Session.SetString("ErrMsg", "Invalid login or your secure session has expired. Please login again or contact your CSR for assistance.");
+                //return RedirectToAction("Index", "ClientHome");
+            }
+            var passwordChangeMessage = TempData["PasswordChangeMessage"] as string;
+            if (!string.IsNullOrEmpty(passwordChangeMessage))
+            {
+                ViewBag.Message = passwordChangeMessage;
+                Console.WriteLine($"PasswordChangeMessage: {ViewBag.Message}");
+
+            }
+
+            var rolePermissionsJson = HttpContext.Session.GetString("rolePermissions");
+
+            List<string> rolePermissions = new List<string>();
+
+            if (!string.IsNullOrEmpty(rolePermissionsJson))
+            {
+                // Handle comma-separated string
+                rolePermissions = rolePermissionsJson
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(r => r.Trim())
+                    .ToList();
+            }
+
+            // Pass access permissions to the view via ViewBag or ViewData
+            ViewBag.CanAccessAccounts = rolePermissions.Contains("CanAccessAccounts");
+            ViewBag.CanAccessPlacements = rolePermissions.Contains("CanAccessPlacements");
+            ViewBag.CanAccessReports = rolePermissions.Contains("CanAccessReports");
+            ViewBag.CanAccessACH = rolePermissions.Contains("CanAccessACH");
+            ViewBag.CanAccessValidMedia = rolePermissions.Contains("CanAccessValidMedia");
+            // Control menu enable state based on password change
+            ViewBag.PasswordChanged = HttpContext.Session.GetString("PasswordChanged") == "true";
+
+            // Pass Role Access Denied message from config
+            ViewBag.RoleAccessDeniedMsg = _config["AppSettings:RoleAccessDeniedMsg"] ?? "Access Denied";
+
+            // Pass any error message from session
+            ViewBag.ErrMessage = HttpContext.Session.GetString("ErrMsg");
+
+            // Set password label text based on password length in session
+            var pword = HttpContext.Session.GetString("pword");
+            ViewBag.OldPasswordLabel = !string.IsNullOrEmpty(pword) && pword.Length > 6 ? "Old Password: " : "Temporary Password: ";
+
+            // Clear the error message from session if you want to
+            HttpContext.Session.Remove("ErrMsg");
+
+            return View();
+            //return View("changepassword");
+            //return View(new ChangePasswordModel());
+
+        }
+
+        [HttpPost]
+        public IActionResult UpdatePassword([FromBody] ChangePasswordModel model)
+        {
+
+            var Password = HttpContext.Session.GetString("pword");
+            var recId = HttpContext.Session.GetInt32("RecID");
+
+
+            if (model.OldPassword == null || Password == null || recId == null)
+            {
+                return Json(new { success = false, message = "Session expired or invalid access." });
+            }
+
+
+            if (model.OldPassword != Password)
+            {
+                return Json(new { success = false, message = "Old password is incorrect." });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .ToList();
+
+                return Json(new { success = false, message = "Validation failed.", errors });
+            }
+
+            // Validate new password
+            string newPassword = model.NewPassword?.Trim();
+
+            var validationResult = ValidatePassword(newPassword);
+            if (!validationResult.IsValid)
+            {
+                return Json(new { success = false, message = validationResult.ErrorMessage });
+            }
+
+            // Execute password update stored procedure with parameterized query
+            var connectionString = _config.GetConnectionString("DefaultDataSource");
+            try
+            {
+                int result;
+                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand("p_cli_change_password", conn))
+                {
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@RecID", recId);
+                    cmd.Parameters.AddWithValue("@Pword", GRC_NewClientPortal.Models.Domain.Common.GetHash(newPassword));
+
+                    conn.Open();
+                    var scalarResult = cmd.ExecuteScalar();
+                    result = Convert.ToInt32(scalarResult);
+                }
+
+                if (result == 1)
+                {
+                    // Update session values
+                    HttpContext.Session.SetString("pword", GRC_NewClientPortal.Models.Domain.Common.GetHash(newPassword));
+                    HttpContext.Session.SetString("ForcePasswordChange", "No");
+                    HttpContext.Session.SetString("PasswordChanged", "true");
+                    HttpContext.Session.Remove("ErrMsg");
+
+                    if (string.IsNullOrEmpty(HttpContext.Session.GetString("PasswordExpDaysLeft")))
+                    {
+                        HttpContext.Session.SetString("PasswordExpDaysLeft", _config["AppSettings:PasswordExpPeriod"]);
+                    }
+
+                    return Json(new { success = true, message = "Your password has been updated successfully." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Your password could not be updated.Please try again later." });
+                }
+
+                // make the panels invisble
+            }
+
+            catch (SqlException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while updating your password. Please log in again and try.",
+                    //error = ex.Message // Optional: remove in production
+                });
+            }
+        }
+
+
+        private (bool IsValid, string ErrorMessage) ValidatePassword(string password)
+        {
+            if (Regex.IsMatch(password, @"(.)\1{2,}", RegexOptions.IgnoreCase))
+            {
+                return (false, "New password should not contain repetitive characters.");
+            }
+            if (password.Length < 8)
+            {
+                return (false, "New password must be at least 8 characters.");
+            }
+            if (password.Contains("&"))
+            {
+                return (false, "Password is not acceptable.");
+            }
+
+            int cnt = 0;
+            if (Regex.IsMatch(password, @"[a-z]")) cnt++;
+            if (Regex.IsMatch(password, @"[A-Z]")) cnt++;
+            if (Regex.IsMatch(password, @"\d")) cnt++;
+            if (Regex.IsMatch(password, @"[!@#$%]")) cnt++;
+
+            if (cnt < 3)
+            {
+                return (false, "New password must contain at least 3 of the following: lowercase, uppercase, number, symbol");
+            }
+
+            var contactName = HttpContext.Session.GetString("contactName");
+
+            if (!string.IsNullOrEmpty(contactName))
+            {
+                var names = contactName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var name in names)
+                {
+                    if (password.Contains(name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return (false, "New password should not contain first name or last name.");
+                    }
+                }
+            }
+
+            // Check against restricted word list
+
+            var filePath = Path.Combine(_env.WebRootPath, "content", "500worst-contains.list");
+            if (System.IO.File.Exists(filePath))
+            {
+                var restrictedWords = System.IO.File.ReadAllLines(filePath);
+                var passwordLower = password.ToLowerInvariant();
+
+                foreach (var word in restrictedWords)
+                {
+                    if (!string.IsNullOrWhiteSpace(word) && passwordLower.Contains(word.Trim().ToLowerInvariant()))
+                    {
+                        return (false, "Invalid password. Please provide a different password.");
+                    }
+                }
+            }
+
+            return (true, string.Empty);
         }
     }
 }
 
-        
-    
 
-    
 
-    
 

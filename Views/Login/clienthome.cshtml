@@ -1,0 +1,381 @@
+﻿@model GRC_NewClientPortal.Models.ClienthomeModel
+@{
+	Layout = null; // ✅ ensures no master layout is used
+	ViewData["Title"] = "General Revenue Corporation :: Clients Access, Home";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>@ViewData["Title"]</title>
+	
+	 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> 
+	<link rel="stylesheet" href="css/style.css?v=@DateTime.Now.Ticks" />
+
+	<script type="text/javascript">
+		function swapImgRestore() {
+			var i, x, a = document.MM_sr;
+			for (i = 0; a && i < a.length && (x = a[i]) && x.oSrc; i++)
+				x.src = x.oSrc;
+		}
+
+		function preloadImages() {
+			console.log("Image in ");
+			var d = document;
+			if (d.images) {
+				if (!d.MM_p) d.MM_p = [];
+				var a = arguments;
+				for (var i = 0; i < a.length; i++)
+					if (a[i].indexOf("#") !== 0) {
+						var img = new Image();
+						img.src = a[i];
+						d.MM_p.push(img);
+					}
+			}
+		}
+
+		function findObj(n, d) {
+			var p, i, x;
+			if (!d) d = document;
+			if ((p = n.indexOf("?")) > 0 && parent.frames.length) {
+				d = parent.frames[n.substring(p + 1)].document;
+				n = n.substring(0, p);
+			}
+			if (!(x = d[n]) && d.all) x = d.all[n];
+			for (i = 0; !x && i < d.forms.length; i++) x = d.forms[i][n];
+			for (i = 0; !x && d.layers && i < d.layers.length; i++)
+				x = findObj(n, d.layers[i].document);
+			if (!x && d.getElementById) x = d.getElementById(n);
+			return x;
+		}
+
+		function swapImage() {
+			var i, j = 0, x, a = swapImage.arguments;
+			document.MM_sr = new Array();
+			for (i = 0; i < (a.length - 2); i += 3)
+				if ((x = findObj(a[i])) != null) {
+					document.MM_sr[j++] = x;
+					if (!x.oSrc) x.oSrc = x.src;
+					x.src = a[i + 2];
+				}
+		}
+
+		document.addEventListener("DOMContentLoaded", function () {
+			preloadImages(
+				'/images/global/nav/nav_clients_over.gif',
+				'/images/global/nav/nav_accountHolders_over.gif',
+				'/images/global/nav/nav_about_over.gif',
+				'/images/global/nav/nav_employment_over.gif'
+			);
+		});
+	</script>
+</head>
+
+<body onload="preloadImages('images/global/nav/nav_clients_over.gif','images/global/nav/nav_accountHolders_over.gif','images/global/nav/nav_about_over.gif','images/global/nav/nav_employment_over.gif')">
+	<div class="top-bar">
+		<div class="top-links">
+			<a asp-controller="Home" asp-action="Index">Home</a>
+			<a href="search.htm">Search</a>
+			<a href="contact.aspx">Contact Us</a>
+		</div>
+	</div>
+
+	<header class="main-header">
+		<div class="header-left">
+			<a href="FW/menu.aspx">
+				<img src="images/home/logo_home2.png" alt="Home" height="60">
+			</a>
+		</div>
+
+		@* <img src="images/home/total_logo.png"> *@
+
+		@* <nav class="header-nav">
+			<a href="whatwedo.aspx">What We Do</a>
+			<a href="#">Who We Serve</a>
+			<a href="#">Who We Are</a>
+			<a href="#">Careers</a>
+		</nav> *@
+	</header>
+
+	<!-- FULL-WIDTH BANNER -->
+	<div class="hero-banner">
+		<img src="images/home/Client_access.png" class="banner-img" />
+
+		<div class="banner-text">
+			Client Access
+		</div>
+	</div>
+
+	<!-- MAIN CONTENT WRAPPER -->
+	<main class="client-access-page">
+
+		<div class="content-area">
+
+			<!-- LEFT SIDE: Important Message + Instructions -->
+			<div class="left-panel">
+
+				<section class="important-message">
+					<h2>IMPORTANT MESSAGE</h2>
+					<p>- To ensure you receive all of GRC's important email messages, please mark emails from “Clientservicesmailbox”.</p>
+					<p>- If you forget your login information, please use “Forgot Password?” below. After five attempts your account will be locked.</p>
+				</section>
+
+				<section class="instructions">
+					<p>
+						Please enter the sign-on and password provided by your Client Services Representative,
+						along with your last name.
+						<span class="text-danger">Password is Case Sensitive.</span>
+					</p>
+				</section>
+
+			</div>
+
+			<!-- RIGHT SIDE: Login Section -->
+			<section class="login-container right-panel">
+
+				<!-- REGULAR LOGIN -->
+				<div id="loginDiv" style="@(Model.ShowMFA ? "display:none;" : "")">
+
+					<div id="clientError" class="alert alert-danger text-center fw-bold" style="display:none;"></div>
+
+					<div class="form-group">
+						<label>Client Login</label>
+						<input asp-for="Signon" class="form-control" />
+					</div>
+
+					<div class="form-group">
+						<label>Last Name</label>
+						<input asp-for="LName" class="form-control" />
+					</div>
+
+					<div class="form-group">
+						<label>Password</label>
+						<input asp-for="Password" type="password" class="form-control" />
+					</div>
+
+					<div class="login-actions">
+						<button class="btn-common btn-primary-common" type="submit" onclick="clienthome()">Submit</button>
+
+						<div class="links">
+							@Html.ActionLink("Forgot Password?", "ForgotPassword", "Login")
+							@Html.ActionLink("Change Password?", "ChangePassword", "Login")
+						</div>
+					</div>
+				</div>
+
+				<!-- MFA -->
+				<div id="mfaDiv" style="@(Model.ShowMFA ? "" : "display:none;")">
+					<h2>Two-Step Verification</h2>
+					<div id="mfaError" class="alert alert-danger text-center fw-bold" style="display:none;"></div>
+					<p class="text-info fw-semibold">@Model.Message</p>
+
+					<div class="form-group">
+						<label>Enter MFA Code</label>
+						<input asp-for="MFACode" class="form-control" />
+					</div>
+
+					<button type="submit" class="btn-common btn-primary-common" onclick="verifyMFA()">Verify</button>
+				</div>
+
+			</section>
+
+		</div>
+
+	</main>
+
+
+	<!-- FOOTER -->
+	<footer class="site-footer">
+		<div class="footer-links">
+			<a href="FW/menu.aspx">Home</a> |
+			<a href="contact.aspx">Contact Us</a> |
+			<a href="Terms%20and%20conditions.htm">Terms & Conditions</a>
+		</div>
+
+		<div class="footer-copy">
+			General Revenue Corporation • 4660 Duke Drive, Suite 200 • Mason, OH 45040-8466<br>
+			© Copyright @DateTime.Now.Year — All rights reserved.<br>
+			<a href="privacy.htm">Privacy Notice</a>
+		</div>
+	</footer>
+
+	<!-- Hidden field for browser version -->
+	<input type="hidden" id="hdnBrowserVersionClt" name="hdnBrowserVersionClt" />
+	<script language="javascript" type="text/javascript">
+		navigator.sayswho = (function() {
+			var ua = navigator.userAgent,
+			N = navigator.appName, tem,
+			M = ua.match(/(opera|chrome|safari|firefox|msie|trident)\/?\s*([\d\.]+)/i) || [];
+			M = M[2] ? [M[1], M[2]] : [N, navigator.appVersion, '-?'];
+			if (M && (tem = ua.match(/version\/([\.\d]+)/i)) != null) M[2] = tem[1];
+			return M.join(' ');
+		})();
+		document.getElementById('hdnBrowserVersionClt').value = navigator.sayswho;
+
+	</script>
+	<!-- SiteCatalyst code version: H.20.3.
+	Copyright 1997-2009 Omniture, Inc. More info available at
+	http://www.omniture.com -->
+	<!-- SiteCatalyst / Omniture Analytics -->
+	<script language="JavaScript" type="text/javascript" src="~/js/s_code.js"></script>
+	<script type="text/javascript">
+		// Page variables for SiteCatalyst
+		var s = s || {};
+		s.pageName = "";
+		s.server = "";
+		s.channel = "GRC";
+		s.pageType = "";
+		s.prop1 = "";
+		s.prop2 = "";
+		s.prop3 = "";
+		s.prop4 = "";
+		s.prop5 = "";
+
+		// Conversion variables
+		s.campaign = "";
+		s.state = "";
+		s.zip = "";
+		s.events = "";
+		s.products = "";
+		s.purchaseID = "";
+		s.eVar1 = "";
+		s.eVar2 = "";
+		s.eVar3 = "";
+		s.eVar4 = "";
+		s.eVar5 = "";
+
+		// Trigger SiteCatalyst tracking
+		try {
+			var s_code = s.t();
+			if (s_code) {
+				// Append tracking code safely
+				var span = document.createElement("span");
+				span.innerHTML = s_code;
+				document.body.appendChild(span);
+			}
+		} catch (e) {
+			console.error("SiteCatalyst tracking error:", e);
+		}
+	</script>
+
+	<!-- Google Analytics (legacy) -->
+	<script async src="https://www.google-analytics.com/ga.js"></script>
+	<script type="text/javascript">
+		try {
+			var pageTracker = _gat._getTracker("UA-6408068-1");
+			pageTracker._trackPageview();
+		} catch (err) {
+			console.error("GA tracking error:", err);
+		}
+	</script>
+
+	<script>
+		async function clienthome() {
+			console.log("clienthome() called");
+
+			const signonInput = document.getElementById('Signon');
+			const lnameInput = document.getElementById('LName');
+			const passwordInput = document.getElementById('Password');
+
+			if (!signonInput || !lnameInput || !passwordInput) {
+				console.error("One or more input fields not found!");
+				return;
+			}
+
+			const model = {
+				Signon: signonInput.value.trim(),
+				LName: lnameInput.value.trim(),
+				Password: passwordInput.value.trim(),
+				BrowserVersion: document.getElementById('hdnBrowserVersionClt').value
+			};
+
+			try {
+				console.log("Sending fetch request to /Login/ClientHome...");
+
+				const response = await fetch('/Login/ClientHome', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(model)
+				});
+
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+
+				const data = await response.json();
+				console.log("Response data:", data);
+
+				// Show error message
+				const errorDiv = document.getElementById('clientError');
+				if (errorDiv) {
+					if (data.errorMessage) {
+						errorDiv.innerHTML = data.errorMessage;
+						errorDiv.style.display = 'block';
+					} else {
+						errorDiv.innerHTML = '';
+						errorDiv.style.display = 'none';
+					}
+				}
+
+				// Toggle Login/MFA divs
+				document.getElementById('loginDiv').style.display = data.showMFA ? 'none' : '';
+				document.getElementById('mfaDiv').style.display = data.showMFA ? '' : 'none';
+
+				// Update MFA message
+				const mfaMessage = document.getElementById('mfaMessage');
+				if (mfaMessage && data.Message) {
+					mfaMessage.innerText = data.Message;
+				}
+
+			} catch (err) {
+				console.error("Fetch error:", err);
+				alert('An error occurred. Please check the console.');
+			}
+		}
+
+
+		async function verifyMFA() {
+			console.log("verifyMFA() called");
+
+			const codeInput = document.getElementById('MFACode');
+			const code = codeInput.value.trim();
+
+			if (!code) {
+				alert("Please enter the MFA code.");
+				return;
+			}
+
+			try {
+				console.log("Sending MFA code to /Login/VerifyMFA...");
+
+				const response = await fetch('/Login/VerifyMFA', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ MFACode: code })
+				});
+
+						const contentType = response.headers.get("content-type");
+				if (contentType && contentType.includes("application/json")) {
+					// JSON response → show error
+					const data = await response.json();
+					const errorDiv = document.getElementById('mfaError');
+					errorDiv.innerHTML = data.errorMessage || "Invalid code.";
+					errorDiv.style.display = 'block';
+				} else {
+					// Redirect response → follow redirect
+					window.location.href = response.url;
+				}
+			} catch (err) {
+				console.error("Error during MFA verification:", err);
+				alert("An error occurred. Check console for details.");
+			}
+		}
+	</script>
+
+	
+	<!-- InstanceEnd -->
+
+</body>
+</html>
+

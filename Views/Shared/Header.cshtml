@@ -1,0 +1,89 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@{
+    //var currentAction = ViewContext.ActionDescriptor.ActionName;
+}
+<div class="top-bar">
+    <div class="top-links">
+        <a asp-controller="Home" asp-action="Index">Home</a>
+        <a asp-controller="Home" asp-action="Search">Search</a>
+        <a asp-controller="Home" asp-action="Contact">Contact Us</a>
+    </div>
+</div>
+
+<header class="main-header">
+    <div class="header-container">
+        <div class="header-left">
+            <a asp-controller="Home" asp-action="Index">
+                <img src="~/images/home/logo_home2.png" alt="Home" height="60" />
+            </a>
+        </div>
+
+        <div class="header-right">
+            <div class="dropdown">
+                <button class="menu-toggle dropdown-toggle"
+                        type="button"
+                        id="hamburgerMenu"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="Menu">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="hamburgerMenu">
+                    <li>
+                        <a class="dropdown-item" asp-controller="Account" asp-action="Index">
+                            <i class="bi bi-person-circle me-2"></i> My Account
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-controller="Ach" asp-action="Index">
+                            <i class="bi bi-bank me-2"></i> My ACH
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-controller="Placements" asp-action="Index">
+                            <i class="bi bi-briefcase me-2"></i> My Placements
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-controller="ReferenceGuide" asp-action="Index">
+                            <i class="bi bi-book me-2"></i> My Reference Guide
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-controller="Reports" asp-action="Index">
+                            <i class="bi bi-bar-chart-line me-2"></i> My Reports
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-controller="Validation Media" asp-action="Index">
+                            <i class="bi bi-folder2-open me-2"></i> My Validation Media
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item" asp-controller="Login" asp-action="ChangePassword">
+                            <i class="bi bi-key me-2"></i> Change Password
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item dropdown-logout" asp-controller="Account" asp-action="Logout">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>

@@ -1,8 +1,8 @@
 ﻿
 
 @{
-    ViewData["Title"] = "Home";
-    Layout = "_CommonLayout"; // uses shared header/footer
+    ViewData["Title"] = "Accounts";
+    Layout = "CommonLayout"; // uses shared header/footer
 }
 
 <section class="home-center">
@@ -29,7 +29,7 @@
                 <div class="tile-title">My Accounts</div>
             </a>
 
-            <a class="tile" asp-controller="ACH" asp-action="Index">
+            <a class="tile" asp-controller="Ach" asp-action="Index">
                 <i class="bi bi-bank tile-icon"></i>
                 <div class="tile-title">My ACH</div>
             </a>
@@ -57,5 +57,6 @@
 
     </div>
 </section>
+
 
 
